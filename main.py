@@ -16,7 +16,7 @@ def json_to_payload(message):
 
 async def cpu_usage_reporter(websocket):
     psutil.cpu_percent()
-    while (True):
+    while True:
         await asyncio.sleep(1)
         message = {
             'event': 'cpu',
