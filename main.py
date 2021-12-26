@@ -61,5 +61,6 @@ async def handler(uri, client_id):
 
 if __name__ == '__main__':
     asyncio.get_event_loop().run_until_complete(
-        handler('wss://mr-scan.herokuapp.com/ws', sys.argv[1])
+        handler('wss://localhost:8000//ws', sys.argv[1])
+        # handler('wss://mr-scan.herokuapp.com/ws', sys.argv[1])
     )
