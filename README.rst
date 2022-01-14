@@ -1,5 +1,5 @@
-mr-scan-device
-==============
+scanhub-mri-device-simulator
+============================
 
 .. code-block:: bash
 
