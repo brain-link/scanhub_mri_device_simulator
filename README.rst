@@ -3,4 +3,4 @@ scanhub-mri-device-simulator
 
 .. code-block:: bash
 
-    python main.py client
+    python main.py mri_device

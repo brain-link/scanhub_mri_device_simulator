@@ -4,11 +4,14 @@ import logging
 import psutil
 import sys
 import websockets
+import base64
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+
+debug_test = 0
 
 def json_to_payload(message):
     return json.dumps(message)
@@ -16,12 +19,23 @@ def json_to_payload(message):
 
 async def cpu_usage_reporter(websocket):
     psutil.cpu_percent()
+    global debug_test
     while True:
         await asyncio.sleep(1)
-        message = {
-            'event': 'cpu',
-            'value': psutil.cpu_percent(),
-        }
+        if debug_test == 0:
+            message = {
+                'event': 'cpu',
+                'value': psutil.cpu_percent(),
+            }
+        else:
+            # opening the image file and encoding in base64
+            with open("test_image.jpg", "rb") as image_file:
+                encoded_string = base64.b64encode(image_file.read())
+            message = {
+                'event': 'image',
+                'value': encoded_string.decode('utf-8'),
+            }
+            debug_test = 0
         await websocket.send(json_to_payload(message))
         logger.debug(f'Sent message to server: {message}')
 
@@ -29,9 +43,14 @@ async def cpu_usage_reporter(websocket):
 async def consumer(message):
     json_message = json.loads(message)
     logger.debug(f'Server message received: {json_message}')
+    global debug_test
 
     if (json_message['event'] == 'beep'):
         print("\a")
+        
+    if (json_message['event'] == 'record'):
+        print("start recording...")
+        debug_test = 1
 
 
 async def consumer_handler(websocket):
