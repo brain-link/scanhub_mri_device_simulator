@@ -1,85 +1,98 @@
-import asyncio
-import json
-import logging
-import psutil
-import sys
-import websockets
-import base64
+# https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-python?tabs=environment-variable-windows
+# https://github.com/Azure-Samples/automated-testing-with-azurite
 
-logging.basicConfig()
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+from azure.storage.blob import BlobClient, BlobServiceClient, ContainerClient
+import os
+import requests
+import uuid
 
+def list_files() -> []:
+    file_list = []
+    
+    for root, dirs, files in os.walk("data"):
+        for name in files:
+            file_list.append({"file_name": name, "local_path": os.path.join(root,name)})
 
-debug_test = 0
+    return file_list
 
-def json_to_payload(message):
-    return json.dumps(message)
+def get_filename_from_url(url: str) -> str:
+    file_name=url.split('/')[-1]
+    return file_name
 
+def get_random_images() -> []:
+    # helper function uses loremflickr.com to get a random list of images 
+    images = []
 
-async def cpu_usage_reporter(websocket):
-    psutil.cpu_percent()
-    global debug_test
-    while True:
-        await asyncio.sleep(1)
-        if debug_test == 0:
-            message = {
-                'event': 'cpu',
-                'value': psutil.cpu_percent(),
-            }
-        else:
-            # opening the image file and encoding in base64
-            with open("test_image.jpg", "rb") as image_file:
-                encoded_string = base64.b64encode(image_file.read())
-            message = {
-                'event': 'image',
-                'value': encoded_string.decode('utf-8'),
-            }
-            debug_test = 0
-        await websocket.send(json_to_payload(message))
-        logger.debug(f'Sent message to server: {message}')
+    for i in range(10):
+        resp = requests.get(url=f"https://loremflickr.com/json/320/240?random={i}")
+        resp_json = resp.json()
+        images.append(resp_json["file"])
 
+    return images
 
-async def consumer(message):
-    json_message = json.loads(message)
-    logger.debug(f'Server message received: {json_message}')
-    global debug_test
+def create_blob_from_url(storage_connection_string,container_name):
+    try:
+        # urls to fetch into blob storage
+        url_list = get_random_images()
 
-    if (json_message['event'] == 'beep'):
-        print("\a")
+        # Instantiate a new BlobServiceClient and a new ContainerClient
+        # blob_service_client = BlobServiceClient.from_connection_string(storage_connection_string)
+        # container_client = blob_service_client.get_container_client(container_name)
+        container_client = ContainerClient.from_connection_string(storage_connection_string, container_name)
+
+        if not container_client.exists():
+            container_client.create_container()
         
-    if (json_message['event'] == 'record'):
-        print("start recording...")
-        debug_test = 1
+        for u in url_list:
+            # Download file from url then upload blob file
+            r = requests.get(u, stream = True)
+            if r.status_code == 200:
+                r.raw.decode_content = True
+                blob_client = container_client.get_blob_client(get_filename_from_url(u))
+                blob_client.upload_blob(r.raw,overwrite=True)
+        return True
+        
+    except Exception as e:
+        print(e.message, e.args)
+        return False
 
+def create_blob_from_path(storage_connection_string,container_name):
+    try:
+        # Instantiate a new BlobServiceClient and a new ContainerClient
+        # blob_service_client = BlobServiceClient.from_connection_string(storage_connection_string)
+        # container_client = blob_service_client.get_container_client(container_name)
+        container_client = ContainerClient.from_connection_string(storage_connection_string, container_name)
+        
+        if not container_client.exists():
+            container_client.create_container()
+        
+        for f in list_files():
+            with open(f["local_path"], "rb") as data:
+                blob_client = container_client.get_blob_client(f["file_name"])
+                blob_client.upload_blob(data,overwrite=True)
+        return True
 
-async def consumer_handler(websocket):
-    async for message in websocket:
-        await consumer(message)
-
-
-async def handler(uri, client_id):
-    async with websockets.connect(uri) as websocket:
-        message = {
-            'event': 'authentication',
-            'client_id': client_id,
-            'client_mode': 'desktop'
-        }
-        await websocket.send(json_to_payload(message))
-
-        consumer_task = asyncio.ensure_future(
-            consumer_handler(websocket))
-        producer_task = asyncio.ensure_future(
-            cpu_usage_reporter(websocket))
-        done, pending = await asyncio.wait(
-            [consumer_task, producer_task],
-            return_when=asyncio.FIRST_COMPLETED,
-        )
-        for task in pending:
-            task.cancel()
+    except Exception as e:
+        print(e.message, e.args)
+        return False
 
 if __name__ == '__main__':
-    asyncio.get_event_loop().run_until_complete(
-        handler('ws://localhost:8000/mri/ws', sys.argv[1])
-        # handler('wss://mr-scan.herokuapp.com/ws', sys.argv[1])
-    )
+
+    # DEBUG
+    os.environ['STORAGE_CONNECTION_STRING'] = 'DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;'
+    os.environ['STORAGE_CONTAINER'] = str(uuid.uuid4()) #'scanhub-container'
+
+    # get storage account settings
+    storage_connection_string = os.environ.get("STORAGE_CONNECTION_STRING")
+    container_name = os.environ.get("STORAGE_CONTAINER")
+
+    # # if you want to copy from a public url
+    # result = create_blob_from_url(storage_connection_string,container_name)
+    
+    # OR if you want to upload form your local drive
+    result = create_blob_from_path(storage_connection_string,container_name)
+
+    if(result):
+        print("Done!")
+    else:
+        print("An error occured!")
