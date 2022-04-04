@@ -80,7 +80,7 @@ if __name__ == '__main__':
 
     # DEBUG
     os.environ['STORAGE_CONNECTION_STRING'] = 'DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;'
-    os.environ['STORAGE_CONTAINER'] = 'mri-scanhub-container' #str(uuid.uuid4()) #'scanhub-container'
+    os.environ['STORAGE_CONTAINER'] = 'raw-mri' #str(uuid.uuid4()) #'scanhub-container'
 
     # get storage account settings
     storage_connection_string = os.environ.get("STORAGE_CONNECTION_STRING")
