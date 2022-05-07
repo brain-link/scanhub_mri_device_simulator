@@ -1,4 +1,0 @@
-psutil
-websockets
-requests
-azure-storage-blob

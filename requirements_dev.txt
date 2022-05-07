@@ -1,6 +1,0 @@
-psutil
-websockets
-requests
-azure-storage-blob
-pytest
-pytest-cov
