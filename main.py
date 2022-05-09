@@ -14,7 +14,7 @@ from PIL import Image
 
 from PySide6.QtCore import QObject, QUrl, qInstallMessageHandler, Qt
 
-#from PySide6.QtGui import QGuiApplication
+from PySide6.QtGui import QGuiApplication
 from PySide6.QtGui import QImage, QPixmap, QColor, QIcon
 from PySide6.QtQml import QQmlApplicationEngine
 
@@ -116,6 +116,7 @@ def open_file(path: str, dtype: np.dtype = np.float32) -> np.ndarray:
             except Exception as e:
                 log.error("Failed to open file", exc_info=True)
                 raise e
+
 
 class ImageManipulators:
     """A class that contains a 2D image and kspace pair and modifier methods
@@ -560,13 +561,6 @@ class ImageManipulators:
 
         kspace[::2] = ksp_epi[::2]
         kspace[1::2] = ksp_epi[1::2, ::-1]
-
-
-
-
-
-
-
 
 
 if __name__ == "__main__":
