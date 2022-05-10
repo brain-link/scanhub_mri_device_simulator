@@ -21,6 +21,8 @@ from PySide6.QtQml import QQmlApplicationEngine
 
 from PySide6.QtWidgets import QApplication, QMessageBox
 
+from simulation_view import SimulationView
+
 
 # Logging setup
 logging.config.fileConfig(fname='logging.conf', disable_existing_loggers=False)
@@ -580,19 +582,19 @@ if __name__ == "__main__":
 
     qInstallMessageHandler(qt_msg_handler)
 
-
-    app_path = Path(__file__).resolve().parent
-
     app = QApplication(sys.argv)
-    QFontDatabase.addApplicationFont("ressources/fontello.ttf")
+    QFontDatabase.addApplicationFont("resources/fontello.ttf")
 
-    app.setWindowIcon(QIcon(os.fspath(app_path / "ressources/icon.ico")))
+    app.setWindowIcon(QIcon(os.fspath(Path(__file__).resolve().parent / "resources/icon.ico")))
     app.setOrganizationName("ScanHub MRI Simulator")
     app.setOrganizationDomain("brain-link.de")
     app.setApplicationName("ScanHub MRI Simulator")
 
-    engine = QQmlApplicationEngine()
-    engine.load(os.fspath(app_path / "main.qml"))
-    if not engine.rootObjects():
-        sys.exit(-1)
+    view = SimulationView()
     sys.exit(app.exec())
+
+#    engine = QQmlApplicationEngine()
+#    engine.load(os.fspath(Path(__file__).resolve().parent / "views/view.qml"))
+#    if not engine.rootObjects():
+#        sys.exit(-1)
+#    sys.exit(app.exec())

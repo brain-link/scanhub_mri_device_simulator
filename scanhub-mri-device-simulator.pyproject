@@ -1,3 +1,11 @@
 {
-    "files": ["main.qml","LICENSE","main.py","logging.conf","README.rst"]
+    "files": [
+    "README.rst",
+    "views/view.qml",
+    "LICENSE",
+    "logging.conf",
+    "main.py",
+    "simulation_view.py",
+    "resources/fontello.ttf",
+    "resources/icon.ico"]
 }
