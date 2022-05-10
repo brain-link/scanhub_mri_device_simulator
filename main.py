@@ -15,7 +15,8 @@ from PIL import Image
 from PySide6.QtCore import QObject, QUrl, qInstallMessageHandler, Qt
 
 from PySide6.QtGui import QGuiApplication
-from PySide6.QtGui import QImage, QPixmap, QColor, QIcon
+from PySide6.QtGui import QImage, QPixmap, QColor, QIcon, QFontDatabase
+
 from PySide6.QtQml import QQmlApplicationEngine
 
 from PySide6.QtWidgets import QApplication, QMessageBox
@@ -583,6 +584,7 @@ if __name__ == "__main__":
     app_path = Path(__file__).resolve().parent
 
     app = QApplication(sys.argv)
+    QFontDatabase.addApplicationFont("ressources/fontello.ttf")
 
     app.setWindowIcon(QIcon(os.fspath(app_path / "ressources/icon.ico")))
     app.setOrganizationName("ScanHub MRI Simulator")
