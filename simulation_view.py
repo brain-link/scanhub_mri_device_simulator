@@ -29,7 +29,6 @@ from PySide6.QtGui import QImage, QPixmap, QColor
 
 from PySide6.QtWidgets import QMessageBox
 
-
 # Attempting to use mkl_fft (faster FFT library for Intel CPUs). Fallback is np
 try:
     import mkl_fft as m
@@ -79,11 +78,12 @@ def open_file(path: str, dtype: np.dtype = np.float32) -> np.ndarray:
     """
 
     try:
-#        log.info(f'Opening file: {path}')
+        log.info(f'Opening file: {path}')
         with Image.open(path) as f:
             img_file = f.convert('F')  # 'F' mode: 32-bit floating point pixels
             img_pixel_array = np.array(img_file).astype(dtype)
-#        log.info(f"Image loaded. Image size: {img_pixel_array.shape}")
+
+        log.info(f"Image loaded. Image size: {img_pixel_array.shape}")
         return img_pixel_array
     except FileNotFoundError:
         log.error("File not found", exc_info=True)
@@ -563,30 +563,31 @@ class MainApp(QObject):
 
     def __init__(self, context, parent=None):
         super().__init__(parent)
+
         self.win = parent
         self.ctx = context
 
-#        def bind(object_name: str) -> QtQuick.QQuickItem:
-#            """Finds the QML Object with the object name
+        def bind(object_name: str) -> QtQuick.QQuickItem:
+            """Finds the QML Object with the object name
 
-#            Parameters:
-#                object_name (str): UI element's objectName in QML file
+            Parameters:
+                object_name (str): UI element's objectName in QML file
 
-#            Returns:
-#                QQuickItem: Reference to the QQuickItem found by the function
-#            """
-#            return win.findChild(QObject, object_name)
+            Returns:
+                QQuickItem: Reference to the QQuickItem found by the function
+            """
+            return self.win.findChild(QObject, object_name)
 
-#        # List of QML control objectNames that we will bind to
-#        ctrls = ["image_display", "kspace_display", "noise_slider", "compress",
-#                 "decrease_dc", "partial_fourier_slider", "undersample_kspace",
-#                 "high_pass_slider", "low_pass_slider", "ksp_const", "filling",
-#                 "hamming", "rdc_slider", "zero_fill", "compress", "droparea",
-#                 "filling_mode", "thumbnails"]
+        # List of QML control objectNames that we will bind to
+        ctrls = ["image_display", "kspace_display", "noise_slider", "compress",
+                 "decrease_dc", "partial_fourier_slider", "undersample_kspace",
+                 "high_pass_slider", "low_pass_slider", "ksp_const", "filling",
+                 "hamming", "rdc_slider", "zero_fill", "compress", "droparea",
+                 "filling_mode", "thumbnails"]
 
-#        # Binding UI elements and controls
-#        for ctrl in ctrls:
-#            setattr(self, "ui_" + ctrl, bind(ctrl))
+        # Binding UI elements and controls
+        for ctrl in ctrls:
+            setattr(self, "ui_" + ctrl, bind(ctrl))
 
         # Initialise an empty list of image paths that can later be filled
         self.url_list = []
@@ -636,26 +637,26 @@ class MainApp(QObject):
         self.ui_droparea.setProperty("loaded_imgs", len(self.url_list))
         self.ui_droparea.setProperty("curr_img", self.current_img + 1)
 
-#    @Slot(QVariant, name="load_new_img")
-#    def load_new_img(self, urls: list):
-#        """ Image loader
+    @Slot('QList<QUrl>', name="load_new_img")
+    def load_new_img(self, urls: list):
+        """ Image loader
 
-#        Loads an image from the specified path
+        Loads an image from the specified path
 
-#        Parameters:
-#            urls: list of QUrls to be opened
-#        """
+        Parameters:
+            urls: list of QUrls to be opened
+        """
 
-#        log.info(f"New image list: {urls}")
+        log.info(f"New image list: {urls}")
 
-#        self.current_img = 0
+        self.current_img = 0
 
-#        # Using QUrl.toLocalFile to convert list elements to strings
-#        self.url_list[:] = [s.toLocalFile() for s in urls]
+        # Using QUrl.toLocalFile to convert list elements to strings
+        self.url_list[:] = [s.toLocalFile() for s in urls]
 
-#        self.ui_droparea.setProperty("loaded_imgs", len(self.url_list))
-#        self.ui_droparea.setProperty("curr_img", self.current_img + 1)
-#        self.execute_load()
+        self.ui_droparea.setProperty("loaded_imgs", len(self.url_list))
+        self.ui_droparea.setProperty("curr_img", self.current_img + 1)
+        self.execute_load()
 
     @Slot(bool, name="wheel_img")
     def next_img(self, up: bool):
@@ -878,16 +879,19 @@ class ImageProvider(QtQuick.QQuickImageProvider):
         QtQuick.QQuickImageProvider. \
             __init__(self, QtQuick.QQuickImageProvider.Pixmap)
 
-    def requestPixmap(self, id_str: str, requested_size):
+    def requestPixmap(self, id_str: str, size, requested_size):
         """Qt calls this function when an image changes
 
         Parameters:
             id_str: identifies the requested image
+            size: This is used to set the width and height of the relevant Image.
             requested_size: image size requested by QML (usually ignored)
 
         Returns:
             QPixmap: an image in the format required by Qt
         """
+
+
         try:
             if id_str.startswith('image'):
                 q_im = QImage(im.image_display_data,             # data
@@ -916,19 +920,19 @@ class ImageProvider(QtQuick.QQuickImageProvider):
                 raise NameError
 
         except NameError:
+            print(NameError)
             # On error, we return a red image of requested size
             q_im = QPixmap(requested_size)
             q_im.fill(QColor('red'))
 
-        return QPixmap(q_im), QPixmap(q_im).size()
+        return QPixmap(q_im)#, QPixmap(q_im).size()
 
 
-
-
-
-
-
-
+# Define im global
+default_image = 'data/default.dcm'
+app_path = pathlib.Path(__file__).parent.absolute()
+default_image = str(app_path.joinpath(default_image))
+im = ImageManipulators(open_file(default_image), is_image=True)
 
 
 class SimulationView(QQmlApplicationEngine):
@@ -937,13 +941,8 @@ class SimulationView(QQmlApplicationEngine):
         # Call super class
         super(SimulationView, self).__init__(parent)
 
-        default_image = 'data/default.dcm'
-        app_path = pathlib.Path(__file__).parent.absolute()
-        default_image = str(app_path.joinpath(default_image))
-
         # Image manipulator and storage initialisation with default image
         self.addImageProvider("imgs", ImageProvider())
-        im = ImageManipulators(open_file(default_image), is_image=True)
 
         # Expose the ... to the QML code
         # self.rootContext().setContextProperty("", self.)
@@ -958,7 +957,7 @@ class SimulationView(QQmlApplicationEngine):
 
         # TBD refactor MainApp out
         ctx = self.rootContext()
-        win = self.rootObjects()[0]
-        self._mainapp = MainApp(ctx, win)
+        self.win = self.rootObjects()[0]
+        self._mainapp = MainApp(ctx, self.win)
 
         ctx.setContextProperty("py_MainApp", self._mainapp)
