@@ -553,9 +553,6 @@ class ImageManipulators:
         kspace[1::2] = ksp_epi[1::2, ::-1]
 
 
-
-
-
 class MainApp(QObject):
     """ Main App
     This class handles all interaction with the QML user interface
@@ -722,32 +719,32 @@ class MainApp(QObject):
         print("load K-Space")
         print(np.load(filename + '.npy'))
 
-#    @Slot(QVariant, QVariant, name="add_spike")
-#    def add_spike(self, mouse_x, mouse_y):
-#        """Inserts a spike at a location given by the UI.
+    @Slot(float, float, name="add_spike")
+    def add_spike(self, mouse_x, mouse_y):
+        """Inserts a spike at a location given by the UI.
 
-#        Values are saved in reverse order because NumPy's indexing conventions:
-#        array[row (== y), column (== x)]
+        Values are saved in reverse order because NumPy's indexing conventions:
+        array[row (== y), column (== x)]
 
-#        Parameters:
-#            mouse_x: click position on the x-axis
-#            mouse_y: click position on the y-axis
-#        """
-#        im.spikes.append((int(mouse_y), int(mouse_x)))
+        Parameters:
+            mouse_x: click position on the x-axis
+            mouse_y: click position on the y-axis
+        """
+        im.spikes.append((int(mouse_y), int(mouse_x)))
 
-#    @Slot(QVariant, QVariant, QVariant, name="add_patch")
-#    def add_patch(self, mouse_x, mouse_y, radius):
-#        """Inserts a patch at a location given by the UI.
+    @Slot(float, float, float, name="add_patch")
+    def add_patch(self, mouse_x, mouse_y, radius):
+        """Inserts a patch at a location given by the UI.
 
-#        Values are saved in reverse order because NumPy's indexing conventions:
-#        array[row (== y), column (== x)]
+        Values are saved in reverse order because NumPy's indexing conventions:
+        array[row (== y), column (== x)]
 
-#        Parameters:
-#            mouse_x: click position on the x-axis
-#            mouse_y: click position on the y-axis
-#            radius: size of the patch
-#        """
-#        im.patches.append((int(mouse_y), int(mouse_x), radius))
+        Parameters:
+            mouse_x: click position on the x-axis
+            mouse_y: click position on the y-axis
+            radius: size of the patch
+        """
+        im.patches.append((int(mouse_y), int(mouse_x), radius))
 
     @Slot(name="delete_spikes")
     def delete_spikes(self):

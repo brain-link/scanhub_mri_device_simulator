@@ -1,7 +1,8 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
-import Qt5Compat.GraphicalEffects
+// import QtQuick.Dialogs
+//import Qt5Compat.GraphicalEffects
 
 ApplicationWindow {
     id: window
@@ -37,8 +38,8 @@ ApplicationWindow {
 
     header: ToolBar {
         id: toolbar
-        //        Material.foreground: "white"
-        //        Material.background: Material.BlueGrey
+//        Material.foreground: "white"
+//        Material.background: Material.BlueGrey
 
         RowLayout {
             spacing: 0
@@ -58,20 +59,20 @@ ApplicationWindow {
                     onActivated: dialog_loader.sourceComponent = fileDialogComponent
                     context: Qt.ApplicationShortcut
                 }
-                //                Component {
-                //                    id: fileDialogComponent
-                //                    FileDialog {
-                //                        id: fileDialog
-                //                        selectMultiple: true
-                //                        title: qsTr("Please choose a file")
-                //                        //: File open dialog title bar
-                //                        onAccepted: {
-                //                            py_MainApp.load_new_img(fileUrls)
-                //                            dialog_loader.hide()
-                //                           }
-                //                        onRejected: dialog_loader.hide()
-                //                    }
-                //                }
+//                Component {
+//                    id: fileDialogComponent
+//                    FileDialog {
+//                        id: fileDialog
+//                        selectMultiple: true
+//                        title: qsTr("Please choose a file")
+//                        //: File open dialog title bar
+//                        onAccepted: {
+//                            py_MainApp.load_new_img(fileUrls)
+//                            dialog_loader.hide()
+//                           }
+//                        onRejected: dialog_loader.hide()
+//                    }
+//                }
             }
 
             ToolButton {
@@ -86,23 +87,23 @@ ApplicationWindow {
                     onActivated: dialog_loader.sourceComponent = fileDialogComponent
                     context: Qt.ApplicationShortcut
                 }
-                //                Component {
-                //                    id: saveDialogComponent
-                //                    FileDialog {
-                //                        id: saveDialog
-                //                        visible: false
-                //                        selectMultiple: false
-                //                        selectExisting: false
-                //                        nameFilters: [ "PNG file (*.png)", "Floating point TIFF (*.tiff)" ]
-                //                        title: qsTr("Save image files")
-                //                        //: Save dialog title bar
-                //                        onAccepted: {
-                //                            py_MainApp.save_img(fileUrl)
-                //                            dialog_loader.hide()
-                //                            }
-                //                        onRejected: dialog_loader.hide()
-                //                    }
-                //                }
+//                Component {
+//                    id: saveDialogComponent
+//                    FileDialog {
+//                        id: saveDialog
+//                        visible: false
+//                        selectMultiple: false
+//                        selectExisting: false
+//                        nameFilters: [ "PNG file (*.png)", "Floating point TIFF (*.tiff)" ]
+//                        title: qsTr("Save image files")
+//                        //: Save dialog title bar
+//                        onAccepted: {
+//                            py_MainApp.save_img(fileUrl)
+//                            dialog_loader.hide()
+//                            }
+//                        onRejected: dialog_loader.hide()
+//                    }
+//                }
             }
 
             ToolButton {
@@ -117,23 +118,23 @@ ApplicationWindow {
                     onActivated: dialog_loader.sourceComponent = fileDialogComponent
                     context: Qt.ApplicationShortcut
                 }
-                //                Component {
-                //                    id: saveDialogKSpaceComponent
-                //                    FileDialog {
-                //                        id: saveDialog
-                //                        visible: false
-                //                        selectMultiple: false
-                //                        selectExisting: false
-                //                        nameFilters: [ "NPY file (*.npy)" ]
-                //                        title: qsTr("Save k-Space files")
-                //                        //: Save dialog title bar
-                //                        onAccepted: {
-                //                            py_MainApp.save_kspace(fileUrl)
-                //                            dialog_loader.hide()
-                //                            }
-                //                        onRejected: dialog_loader.hide()
-                //                    }
-                //                }
+//                Component {
+//                    id: saveDialogKSpaceComponent
+//                    FileDialog {
+//                        id: saveDialog
+//                        visible: false
+//                        selectMultiple: false
+//                        selectExisting: false
+//                        nameFilters: [ "NPY file (*.npy)" ]
+//                        title: qsTr("Save k-Space files")
+//                        //: Save dialog title bar
+//                        onAccepted: {
+//                            py_MainApp.save_kspace(fileUrl)
+//                            dialog_loader.hide()
+//                            }
+//                        onRejected: dialog_loader.hide()
+//                    }
+//                }
             }
 
             Item {
@@ -185,8 +186,8 @@ ApplicationWindow {
 
     footer: ToolBar {
         id: footer
-        //        Material.foreground: "white"
-        //        Material.background: "#555555"
+//        Material.foreground: "white"
+//        Material.background: "#555555"
         RowLayout {
             anchors.rightMargin: !drawer_right.modal ? drawer_right.width : undefined
             anchors.fill: parent
@@ -925,32 +926,32 @@ ApplicationWindow {
                             kspace_item.visible = !kspace_item.visible
                         }
 
-                        //                        onWheel: {
-                        //                            if (wheel.angleDelta.y > 0) {
-                        //                                py_MainApp.wheel_img(1)}
-                        //                            else {
-                        //                                py_MainApp.wheel_img(0)}
-                        //                        }
+                        onWheel: {
+                            if (wheel.angleDelta.y > 0) {
+                                py_MainApp.wheel_img(1)}
+                            else {
+                                py_MainApp.wheel_img(0)}
+                        }
                     }
 
-                    BrightnessContrast {
-                        z: 1
-                        id: image_gamma
-                        anchors.fill: image
-                        source: image
-                        contrast: 0
-                        brightness: 0
-                    }
+//                    BrightnessContrast {
+//                        z: 1
+//                        id: image_gamma
+//                        anchors.fill: image
+//                        source: image
+//                        contrast: 0
+//                        brightness: 0
+//                    }
 
-                    //                    DropShadow {
-                    //                        anchors.fill: image
-                    //                        horizontalOffset: 5
-                    //                        verticalOffset: 5
-                    //                        radius: 8.0
-                    //                        samples: 17
-                    //                        color: "#80000000"
-                    //                        source: image
-                    //                    }
+//                    DropShadow {
+//                        anchors.fill: image
+//                        horizontalOffset: 5
+//                        verticalOffset: 5
+//                        radius: 8.0
+//                        samples: 17
+//                        color: "#80000000"
+//                        source: image
+//                    }
 
                     Label {
                         id: im_no
@@ -999,43 +1000,43 @@ ApplicationWindow {
                             kspace_gamma.gamma = 1
                             image_item.visible = !image_item.visible
                         }
-                        //                        onClicked: {
-                        //                            if ((main_pane.state != "normal_mode" && main_pane.state != "compress_mode") && mouse.button === Qt.LeftButton) {
-                        //                                var wd_ratio = kspace.paintedWidth/kspace.sourceSize.width;
-                        //                                var ht_ratio = kspace.paintedHeight/kspace.sourceSize.height;
-                        //                                if (main_pane.state == "spike_mode") {
-                        //                                    py_MainApp.add_spike((mouseX-1)/wd_ratio, (mouseY-1)/ht_ratio)
-                        //                                }
-                        //                                else if (main_pane.state == "patch_mode") {
-                        //                                    py_MainApp.add_patch((mouseX-1)/wd_ratio, (mouseY-1)/ht_ratio, 2)
-                        //                                }
-                        //                                py_MainApp.update_displays()
-                        //                                main_pane.state = "normal_mode"
-                        //                                drawer_right.modal && drawer_right.open()
-                        //                            } else if (main_pane.state != "normal_mode" && mouse.button === Qt.RightButton) {
-                        //                                main_pane.state = "normal_mode"
-                        //                                drawer_right.modal && drawer_right.open()
-                        //                            }
-                        //                        }
+                        onClicked: (mouse)=> {
+                            if ((main_pane.state != "normal_mode" && main_pane.state != "compress_mode") && mouse.button === Qt.LeftButton) {
+                                var wd_ratio = kspace.paintedWidth/kspace.sourceSize.width;
+                                var ht_ratio = kspace.paintedHeight/kspace.sourceSize.height;
+                                if (main_pane.state == "spike_mode") {
+                                    py_MainApp.add_spike((mouseX-1)/wd_ratio, (mouseY-1)/ht_ratio)
+                                }
+                                else if (main_pane.state == "patch_mode") {
+                                    py_MainApp.add_patch((mouseX-1)/wd_ratio, (mouseY-1)/ht_ratio, 2)
+                                }
+                                py_MainApp.update_displays()
+                                main_pane.state = "normal_mode"
+                                drawer_right.modal && drawer_right.open()
+                            } else if (main_pane.state != "normal_mode" && mouse.button === Qt.RightButton) {
+                                main_pane.state = "normal_mode"
+                                drawer_right.modal && drawer_right.open()
+                            }
+                        }
                     }
 
-                    GammaAdjust {
-                        z: 1
-                        id: kspace_gamma
-                        anchors.fill: kspace
-                        source: kspace
-                        gamma: 1
-                    }
+//                    GammaAdjust {
+//                        z: 1
+//                        id: kspace_gamma
+//                        anchors.fill: kspace
+//                        source: kspace
+//                        gamma: 1
+//                    }
 
-                    //                    DropShadow {
-                    //                        anchors.fill: kspace
-                    //                        horizontalOffset: 5
-                    //                        verticalOffset: 5
-                    //                        radius: 8.0
-                    //                        samples: 17
-                    //                        color: "#80000000"
-                    //                        source: kspace
-                    //                    }
+//                    DropShadow {
+//                        anchors.fill: kspace
+//                        horizontalOffset: 5
+//                        verticalOffset: 5
+//                        radius: 8.0
+//                        samples: 17
+//                        color: "#80000000"
+//                        source: kspace
+//                    }
                 }
             }
 
@@ -1049,15 +1050,15 @@ ApplicationWindow {
                 font.family: "fontello"
             }
 
-            //            DropShadow {
-            //                anchors.fill: button1
-            //                horizontalOffset: 5
-            //                verticalOffset: 5
-            //                radius: 8.0
-            //                samples: 17
-            //                color: "#80000000"
-            //                source: button1
-            //            }
+//            DropShadow {
+//                anchors.fill: button1
+//                horizontalOffset: 5
+//                verticalOffset: 5
+//                radius: 8.0
+//                samples: 17
+//                color: "#80000000"
+//                source: button1
+//            }
         }
 
         states: State {
@@ -1165,11 +1166,11 @@ ApplicationWindow {
                 id: aboutColumn
                 spacing: 0
                 width: aboutDialog.width - aboutDialog.rightPadding * 2
-                //                Image {
-                //                    source: "images/icon.ico"
-                //                    fillMode: Image.PreserveAspectFit
-                //                    Layout.fillWidth: true
-                //                }
+//                Image {
+//                    source: "images/icon.ico"
+//                    fillMode: Image.PreserveAspectFit
+//                    Layout.fillWidth: true
+//                }
                 ColumnLayout {
                     spacing: 15
                     Text {
