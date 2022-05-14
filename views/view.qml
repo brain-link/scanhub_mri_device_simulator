@@ -943,16 +943,6 @@ ApplicationWindow {
 //                        brightness: 0
 //                    }
 
-//                    DropShadow {
-//                        anchors.fill: image
-//                        horizontalOffset: 5
-//                        verticalOffset: 5
-//                        radius: 8.0
-//                        samples: 17
-//                        color: "#80000000"
-//                        source: image
-//                    }
-
                     Label {
                         id: im_no
                         z: 1
@@ -1040,16 +1030,6 @@ ApplicationWindow {
 
                         }
                     }
-
-//                    DropShadow {
-//                        anchors.fill: kspace
-//                        horizontalOffset: 5
-//                        verticalOffset: 5
-//                        radius: 8.0
-//                        samples: 17
-//                        color: "#80000000"
-//                        source: kspace
-//                    }
                 }
             }
 
@@ -1062,16 +1042,6 @@ ApplicationWindow {
                 text: "\uF1DE"
                 font.family: "fontello"
             }
-
-//            DropShadow {
-//                anchors.fill: button1
-//                horizontalOffset: 5
-//                verticalOffset: 5
-//                radius: 8.0
-//                samples: 17
-//                color: "#80000000"
-//                source: button1
-//            }
         }
 
         states: State {
