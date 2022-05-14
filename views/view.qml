@@ -1020,13 +1020,26 @@ ApplicationWindow {
                         }
                     }
 
-//                    GammaAdjust {
-//                        z: 1
-//                        id: kspace_gamma
-//                        anchors.fill: kspace
-//                        source: kspace
-//                        gamma: 1
-//                    }
+                    // PySide6 GammaAdjust replacement
+                    Item {
+                        z: 1
+                        id: kspace_gamma
+                        anchors.fill: kspace
+                        property real gamma: 1.0
+                        //! [source]
+                        ShaderEffectSource {
+                            id: kspaceSource
+                            sourceItem: kspace
+                        }
+                        //! [source]
+                        ShaderEffect {
+                            anchors.fill: parent
+                            property variant source: kspaceSource
+                            property real gamma: 1.0 / Math.max(kspace_gamma.gamma, 0.0001)
+                            fragmentShader: "shaders/gammaadjust.frag.qsb"
+
+                        }
+                    }
 
 //                    DropShadow {
 //                        anchors.fill: kspace
