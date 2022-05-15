@@ -38,9 +38,6 @@ ApplicationWindow {
 
     header: ToolBar {
         id: toolbar
-//        Material.foreground: "white"
-//        Material.background: Material.BlueGrey
-
         RowLayout {
             spacing: 0
             anchors.fill: parent
@@ -186,8 +183,6 @@ ApplicationWindow {
 
     footer: ToolBar {
         id: footer
-//        Material.foreground: "white"
-//        Material.background: "#555555"
         RowLayout {
             anchors.rightMargin: !drawer_right.modal ? drawer_right.width : undefined
             anchors.fill: parent
@@ -934,14 +929,37 @@ ApplicationWindow {
                         }
                     }
 
-//                    BrightnessContrast {
-//                        z: 1
-//                        id: image_gamma
-//                        anchors.fill: image
-//                        source: image
-//                        contrast: 0
-//                        brightness: 0
-//                    }
+                    // PySide6 BrightnessContrast replacement
+                    Item {
+                        z: 1
+                        id: image_gamma
+                        anchors.fill: image
+                        property real brightness: 0.0
+                        property real contrast: 0.0
+                        property bool cached: false
+
+                        ShaderEffectSource {
+                            id: imageSource
+                            anchors.fill: parent
+                            visible: image_gamma.cached
+                            smooth: true
+                            sourceItem: image
+                            live: true
+                            hideSource: visible
+                        }
+
+                        ShaderEffect {
+                            id: shaderItem
+                            property variant source: imageSource
+                            property real brightness: image_gamma.brightness
+                            property real contrast: image_gamma.contrast
+
+                            anchors.fill: parent
+                            blending: !image_gamma.cached
+
+                            fragmentShader: "shaders/brightnesscontrast.frag.qsb"
+                        }
+                    }
 
                     Label {
                         id: im_no
@@ -1016,12 +1034,12 @@ ApplicationWindow {
                         id: kspace_gamma
                         anchors.fill: kspace
                         property real gamma: 1.0
-                        //! [source]
+
                         ShaderEffectSource {
                             id: kspaceSource
                             sourceItem: kspace
                         }
-                        //! [source]
+
                         ShaderEffect {
                             anchors.fill: parent
                             property variant source: kspaceSource
