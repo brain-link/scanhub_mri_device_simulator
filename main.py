@@ -50,7 +50,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     QFontDatabase.addApplicationFont("resources/fontello.ttf")
 
-    app.setWindowIcon(QIcon(os.fspath(Path(__file__).resolve().parent / "resources/icon.ico")))
+    app.setWindowIcon(QIcon(os.fspath(Path(__file__).resolve().parent / "resources/scanhub.ico")))
     app.setOrganizationName("ScanHub MRI Simulator")
     app.setOrganizationDomain("brain-link.de")
     app.setApplicationName("ScanHub MRI Simulator")

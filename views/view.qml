@@ -1,8 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
-// import QtQuick.Dialogs
-//import Qt5Compat.GraphicalEffects
+import QtQuick.Dialogs
 
 ApplicationWindow {
     id: window
@@ -14,7 +13,6 @@ ApplicationWindow {
     readonly property bool narrowWindow: window.width < 400
     title: qsTr("ScanHub MRI Simulator")
     //: Application title bar text
-
 
     Shortcut {
         sequence: StandardKey.FullScreen
@@ -34,7 +32,6 @@ ApplicationWindow {
         sequence: "j"
         onActivated: thumbnails.model ? thumbnails.currentIndex = (thumbnails.currentIndex-1+thumbnails.model) % thumbnails.model : 0
     }
-
 
     header: ToolBar {
         id: toolbar
@@ -56,20 +53,20 @@ ApplicationWindow {
                     onActivated: dialog_loader.sourceComponent = fileDialogComponent
                     context: Qt.ApplicationShortcut
                 }
-//                Component {
-//                    id: fileDialogComponent
-//                    FileDialog {
-//                        id: fileDialog
-//                        selectMultiple: true
-//                        title: qsTr("Please choose a file")
-//                        //: File open dialog title bar
-//                        onAccepted: {
-//                            py_MainApp.load_new_img(fileUrls)
-//                            dialog_loader.hide()
-//                           }
-//                        onRejected: dialog_loader.hide()
-//                    }
-//                }
+                Component {
+                    id: fileDialogComponent
+                    FileDialog {
+                        id: fileDialog
+                        fileMode: FileDialog.OpenFiles
+                        title: qsTr("Please choose a file")
+                        //: File open dialog title bar
+                        onAccepted: {
+                            py_MainApp.load_new_img(fileUrls)
+                            dialog_loader.hide()
+                           }
+                        onRejected: dialog_loader.hide()
+                    }
+                }
             }
 
             ToolButton {
@@ -84,23 +81,21 @@ ApplicationWindow {
                     onActivated: dialog_loader.sourceComponent = fileDialogComponent
                     context: Qt.ApplicationShortcut
                 }
-//                Component {
-//                    id: saveDialogComponent
-//                    FileDialog {
-//                        id: saveDialog
-//                        visible: false
-//                        selectMultiple: false
-//                        selectExisting: false
-//                        nameFilters: [ "PNG file (*.png)", "Floating point TIFF (*.tiff)" ]
-//                        title: qsTr("Save image files")
-//                        //: Save dialog title bar
-//                        onAccepted: {
-//                            py_MainApp.save_img(fileUrl)
-//                            dialog_loader.hide()
-//                            }
-//                        onRejected: dialog_loader.hide()
-//                    }
-//                }
+                Component {
+                    id: saveDialogComponent
+                    FileDialog {
+                        id: saveDialog
+                        fileMode: FileDialog.SaveFile
+                        nameFilters: [ "PNG file (*.png)", "Floating point TIFF (*.tiff)" ]
+                        title: qsTr("Save image files")
+                        //: Save dialog title bar
+                        onAccepted: {
+                            py_MainApp.save_img(fileUrl)
+                            dialog_loader.hide()
+                            }
+                        onRejected: dialog_loader.hide()
+                    }
+                }
             }
 
             ToolButton {
@@ -115,23 +110,21 @@ ApplicationWindow {
                     onActivated: dialog_loader.sourceComponent = fileDialogComponent
                     context: Qt.ApplicationShortcut
                 }
-//                Component {
-//                    id: saveDialogKSpaceComponent
-//                    FileDialog {
-//                        id: saveDialog
-//                        visible: false
-//                        selectMultiple: false
-//                        selectExisting: false
-//                        nameFilters: [ "NPY file (*.npy)" ]
-//                        title: qsTr("Save k-Space files")
-//                        //: Save dialog title bar
-//                        onAccepted: {
-//                            py_MainApp.save_kspace(fileUrl)
-//                            dialog_loader.hide()
-//                            }
-//                        onRejected: dialog_loader.hide()
-//                    }
-//                }
+                Component {
+                    id: saveDialogKSpaceComponent
+                    FileDialog {
+                        id: saveKSpaceDialog
+                        fileMode: FileDialog.SaveFile
+                        nameFilters: [ "NPY file (*.npy)" ]
+                        title: qsTr("Save k-Space files")
+                        //: Save dialog title bar
+                        onAccepted: {
+                            py_MainApp.save_kspace(fileUrl)
+                            dialog_loader.hide()
+                            }
+                        onRejected: dialog_loader.hide()
+                    }
+                }
             }
 
             Item {
@@ -1167,11 +1160,11 @@ ApplicationWindow {
                 id: aboutColumn
                 spacing: 0
                 width: aboutDialog.width - aboutDialog.rightPadding * 2
-//                Image {
-//                    source: "images/icon.ico"
-//                    fillMode: Image.PreserveAspectFit
-//                    Layout.fillWidth: true
-//                }
+                Image {
+                    source: "../resources/scanhub.ico"
+                    fillMode: Image.PreserveAspectFit
+                    Layout.fillWidth: true
+                }
                 ColumnLayout {
                     spacing: 15
                     Text {

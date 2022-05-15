@@ -1,11 +1,16 @@
 {
     "files": [
-    "README.rst",
-    "views/view.qml",
-    "LICENSE",
-    "logging.conf",
     "main.py",
+    "README.rst",
+    "LICENSE",
+    "views/view.qml",
+    "views/shaders/brightnesscontrast.frag",
+    "views/shaders/brightnesscontrast.frag.qsb",
+    "views/shaders/gammaadjust.frag",
+    "views/shaders/gammaadjust.frag.qsb",
+    "logging.conf",
     "simulation_view.py",
     "resources/fontello.ttf",
-    "resources/icon.ico"]
+    "resources/scanhub.ico",
+    "resources/brain-link.ico"]
 }
