@@ -744,7 +744,7 @@ class MainApp(QObject):
             mouse_y: click position on the y-axis
             radius: size of the patch
         """
-        im.patches.append((int(mouse_y), int(mouse_x), radius))
+        im.patches.append((int(mouse_y), int(mouse_x), int(radius)))
 
     @Slot(name="delete_spikes")
     def delete_spikes(self):

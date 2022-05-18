@@ -136,7 +136,8 @@ ApplicationWindow {
 
             ToolButton {
                 id: hide_progressbar
-                //                icon.source: "images/layout-footer.png"
+                text: "\uF2D1" // icon-window-minimize
+                font.family: "fontello"
                 onClicked: footer.visible = !footer.visible
                 ToolTip.text: qsTr("Toggle scan progress (F7)")
                 //: Hover tooltip text
@@ -202,7 +203,7 @@ ApplicationWindow {
 
             ToolButton {
                 id: play_btn
-                text: "\uE803" //play_anim.running ? "\uE804" : "\uE803" // icon-pause : icon-play
+                text: play_anim.running ? "\uE804" : "\uE803" // icon-pause : icon-play
                 font.family: "fontello"
                 ToolTip.text: "Play/Pause (F5)"
                 //: Image acquisition footer button tooltip text
@@ -260,7 +261,6 @@ ApplicationWindow {
         }
     }
 
-
     Drawer {
         id: drawer_right
         width: narrowWindow ? window.width : 400
@@ -288,12 +288,11 @@ ApplicationWindow {
 
             Button {
                 id: reset_button
-                text: qsTr("Reset to defaults")
+                text: "\uE805" // icon-ccw
+                font.family: "fontello"
                 highlighted: false
-                implicitHeight: 35
                 Layout.rightMargin: 20
                 Layout.alignment: Qt.AlignRight
-                //icon.source: "images/undo-variant.png"
                 onPressed: {
                     py_MainApp.delete_spikes()
                     py_MainApp.delete_patches()
@@ -325,7 +324,6 @@ ApplicationWindow {
             Pane {
                 id: root
                 anchors.fill: parent
-                //                Material.background: "white"
 
                 Column {
                     id: controlsColumn
@@ -616,8 +614,8 @@ ApplicationWindow {
                         columns: 3
                         Button {
                             id: btnSpike
-                            text: qsTr("Add spike")
-                            icon.source: "images/plus-thick.png"
+                            text: "\uE807 " + qsTr("Add spike") // icon-plus
+                            font.family: "fontello"
                             Layout.alignment: Qt.AlignHCenter
                             Layout.fillWidth: true
                             onPressed: {
@@ -627,10 +625,10 @@ ApplicationWindow {
                         }
 
                         Button {
-                            text: qsTr("Clear")
+                            text: "\uE806 " + qsTr("Clear") // icon-trash-empty
+                            font.family: "fontello"
                             Layout.alignment: Qt.AlignHCenter
                             Layout.fillWidth: true
-                            icon.source: "images/trash-can.png"
                             onPressed: {
                                 py_MainApp.delete_spikes()
                                 py_MainApp.update_displays()
@@ -638,7 +636,8 @@ ApplicationWindow {
                         }
                         Button {
                             Layout.alignment: Qt.AlignHCenter
-                            icon.source: "images/undo-variant.png"
+                            text: "\uE805" // icon-ccw
+                            font.family: "fontello"
                             onPressed: {
                                 py_MainApp.undo_spike()
                                 py_MainApp.update_displays()
@@ -647,8 +646,8 @@ ApplicationWindow {
 
                         Button {
                             id: btnPatch
-                            text: qsTr("Add patch")
-                            icon.source: "images/eraser.png"
+                            text: "\uF12D " + qsTr("Add patch") // icon-eraser
+                            font.family: "fontello"
                             Layout.alignment: Qt.AlignHCenter
                             Layout.fillWidth: true
                             onPressed: {
@@ -659,10 +658,10 @@ ApplicationWindow {
 
                         Button {
                             id: btnClearPatches
-                            text: qsTr("Clear")
+                            text: "\uE806 " + qsTr("Clear") // icon-trash-empty
+                            font.family: "fontello"
                             Layout.alignment: Qt.AlignHCenter
                             Layout.fillWidth: true
-                            icon.source: "images/trash-can.png"
                             onPressed: {
                                 py_MainApp.delete_patches()
                                 py_MainApp.update_displays()
@@ -670,7 +669,8 @@ ApplicationWindow {
                         }
                         Button {
                             Layout.alignment: Qt.AlignHCenter
-                            icon.source: "images/undo-variant.png"
+                            text: "\uE805" // icon-ccw
+                            font.family: "fontello"
                             onPressed: {
                                 py_MainApp.undo_patch()
                                 py_MainApp.update_displays()
@@ -858,7 +858,7 @@ ApplicationWindow {
                 anchors.fill: parent
                 enabled: true
                 onDropped: {
-                    //py_MainApp.load_new_img(drop.urls);
+                    py_MainApp.load_new_img(drop.urls);
                 }
             }
 
@@ -1089,7 +1089,7 @@ ApplicationWindow {
 
             standardButtons: Dialog.Ok | Dialog.Cancel
             onAccepted: {
-                //py_MainApp.retranslate(languageBox.displayText)
+                py_MainApp.retranslate(languageBox.displayText)
                 settingsDialog.close()
                 modal = false //if not set, cursor will not change in Spikemode()
                 dialog_loader.hide()
