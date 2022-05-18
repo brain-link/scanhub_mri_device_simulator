@@ -38,7 +38,6 @@ ApplicationWindow {
         RowLayout {
             spacing: 0
             anchors.fill: parent
-            anchors.rightMargin: !drawer_right.modal ? drawer_right.width : undefined
 
             ToolButton {
                 id: open_img
@@ -178,7 +177,6 @@ ApplicationWindow {
     footer: ToolBar {
         id: footer
         RowLayout {
-            anchors.rightMargin: !drawer_right.modal ? drawer_right.width : undefined
             anchors.fill: parent
 
             ToolButton {
@@ -263,8 +261,9 @@ ApplicationWindow {
 
     Drawer {
         id: drawer_right
+        y: toolbar.height
         width: narrowWindow ? window.width : 400
-        height: window.height
+        height: window.height - toolbar.height - footer.height
         edge: Qt.RightEdge
         modal: !pin.checked
         interactive: !pin.checked
