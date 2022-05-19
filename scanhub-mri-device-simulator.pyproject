@@ -4,6 +4,7 @@
     "README.rst",
     "LICENSE",
     "views/view.qml",
+    "views/KSpaceParameterView.qml",
     "views/shaders/brightnesscontrast.frag",
     "views/shaders/brightnesscontrast.frag.qsb",
     "views/shaders/gammaadjust.frag",
