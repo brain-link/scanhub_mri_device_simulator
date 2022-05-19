@@ -643,8 +643,6 @@ class MainApp(QObject):
         Parameters:
             urls: list of QUrls to be opened
         """
-        print("Here load new image")
-        print(urls)
 
         log.info(f"New image list: {urls}")
 
