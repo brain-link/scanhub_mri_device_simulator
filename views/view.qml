@@ -52,6 +52,8 @@ ApplicationWindow {
                     onActivated: dialog_loader.sourceComponent = fileDialogComponent
                     context: Qt.ApplicationShortcut
                 }
+
+
                 Component {
                     id: fileDialogComponent
                     FileDialog {
@@ -60,9 +62,9 @@ ApplicationWindow {
                         title: qsTr("Please choose a file")
                         //: File open dialog title bar
                         onAccepted: {
-                            py_MainApp.load_new_img(fileUrls)
+                            py_MainApp.load_new_img(selectedFiles)
                             dialog_loader.hide()
-                           }
+                        }
                         onRejected: dialog_loader.hide()
                     }
                 }
@@ -72,7 +74,7 @@ ApplicationWindow {
                 text: "\uE800" // icon-floppy
                 font.family: "fontello"
                 onClicked: dialog_loader.sourceComponent = saveDialogComponent;
-                ToolTip.text: qsTr("Save as images (Ctrl + S)")
+                ToolTip.text: qsTr("Save Images (Ctrl + S)")
                 //: Hover tooltip text
                 ToolTip.visible: hovered
                 Shortcut {
@@ -85,40 +87,11 @@ ApplicationWindow {
                     FileDialog {
                         id: saveDialog
                         fileMode: FileDialog.SaveFile
-                        nameFilters: [ "PNG file (*.png)", "Floating point TIFF (*.tiff)" ]
+                        nameFilters: [ "PNG file (*.png)", "Floating point TIFF (*.tiff)", "NumPy file with a complex K-Space (*.npy)" ]
                         title: qsTr("Save image files")
                         //: Save dialog title bar
                         onAccepted: {
-                            py_MainApp.save_img(fileUrl)
-                            dialog_loader.hide()
-                            }
-                        onRejected: dialog_loader.hide()
-                    }
-                }
-            }
-
-            ToolButton {
-                text: "\uE800" // icon-floppy
-                font.family: "fontello"
-                onClicked: dialog_loader.sourceComponent = saveDialogKSpaceComponent;
-                ToolTip.text: qsTr("Save K-Space (Ctrl + K)")
-                //: Hover tooltip text
-                ToolTip.visible: hovered
-                Shortcut {
-                    sequence: "Ctrl+K"
-                    onActivated: dialog_loader.sourceComponent = fileDialogComponent
-                    context: Qt.ApplicationShortcut
-                }
-                Component {
-                    id: saveDialogKSpaceComponent
-                    FileDialog {
-                        id: saveKSpaceDialog
-                        fileMode: FileDialog.SaveFile
-                        nameFilters: [ "NPY file (*.npy)" ]
-                        title: qsTr("Save k-Space files")
-                        //: Save dialog title bar
-                        onAccepted: {
-                            py_MainApp.save_kspace(fileUrl)
+                            py_MainApp.save_img(selectedFile)
                             dialog_loader.hide()
                             }
                         onRejected: dialog_loader.hide()
@@ -915,9 +888,9 @@ ApplicationWindow {
 
                         onWheel: {
                             if (wheel.angleDelta.y > 0) {
-                                py_MainApp.wheel_img(1)}
+                                py_MainApp.next_img(1)}
                             else {
-                                py_MainApp.wheel_img(0)}
+                                py_MainApp.next_img(0)}
                         }
                     }
 

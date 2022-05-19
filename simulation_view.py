@@ -643,6 +643,8 @@ class MainApp(QObject):
         Parameters:
             urls: list of QUrls to be opened
         """
+        print("Here load new image")
+        print(urls)
 
         log.info(f"New image list: {urls}")
 
@@ -655,7 +657,7 @@ class MainApp(QObject):
         self.ui_droparea.setProperty("curr_img", self.current_img + 1)
         self.execute_load()
 
-    @Slot(bool, name="wheel_img")
+    @Slot(bool, name="next_img")
     def next_img(self, up: bool):
         """ Steps to the next image on mousewheel event
 
@@ -701,23 +703,9 @@ class MainApp(QObject):
             Image.fromarray(im.img).convert(mode='L').save(i_path)
             Image.fromarray(im.kspace_display_data).convert(mode='L').save(
                 k_path)
-
-    @Slot(str, name="save_kspace")
-    def save_kspace(self, path):
-        """Saves the kspace to a numpy file
-
-        Parameters:
-            path (str): QUrl format file location (starts with "file:///")
-        """
-        import os.path
-        filename, ext = os.path.splitext(path[8:])  # Remove QUrl's "file:///"
-
-        print("Saving K-Space to:", filename + ext)
-        print('K-Space')
-        print(im.kspacedata)
-        np.save(filename, im.kspacedata)
-        print("load K-Space")
-        print(np.load(filename + '.npy'))
+        elif ext == '.npy':
+            np.save(i_path, im.img)
+            np.save(k_path, im.kspacedata)
 
     @Slot(float, float, name="add_spike")
     def add_spike(self, mouse_x, mouse_y):
