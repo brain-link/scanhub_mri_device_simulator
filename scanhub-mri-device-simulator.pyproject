@@ -1,6 +1,7 @@
 {
     "files": [
     "main.py",
+    "image_manipulators.py",
     "README.rst",
     "LICENSE",
     "views/view.qml",

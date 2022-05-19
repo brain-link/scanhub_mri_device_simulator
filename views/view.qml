@@ -52,8 +52,6 @@ ApplicationWindow {
                     onActivated: dialog_loader.sourceComponent = fileDialogComponent
                     context: Qt.ApplicationShortcut
                 }
-
-
                 Component {
                     id: fileDialogComponent
                     FileDialog {
