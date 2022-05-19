@@ -21,7 +21,7 @@ ApplicationWindow {
 
     Shortcut {
         sequence: "Tab"
-        onActivated: drawer_right.open()
+        onActivated: drawer.open()
     }
 
     Shortcut {
@@ -135,10 +135,6 @@ ApplicationWindow {
                     transformOrigin: Menu.TopRight
 
                     MenuItem {
-                        text: "Settings"
-                        onTriggered: dialog_loader.sourceComponent = settingsDialog_component;
-                    }
-                    MenuItem {
                         text: "About"
                         onTriggered: dialog_loader.sourceComponent = aboutDialog_component;
                     }
@@ -233,30 +229,19 @@ ApplicationWindow {
     }
 
     Drawer {
-        id: drawer_right
+        id: drawer
         y: toolbar.height
         width: narrowWindow ? window.width : 400
         height: window.height - toolbar.height - footer.height
-        edge: Qt.RightEdge
-        modal: !pin.checked
-        interactive: !pin.checked
+        edge: Qt.LeftEdge
+        modal: false //!pin.checked
+        interactive: true //!pin.checked
 
         RowLayout {
             spacing: 0
             id: switches
             width: parent.width
             height: toolbar.height
-
-            Switch {
-                id: pin
-                onCheckedChanged: pin.checked ? split_view.state= "drawer_pinned" : split_view.state= "drawer_unpinned"
-                text: "Pin sidebar"
-                //: Right drawer switch button text
-                Layout.fillWidth: true
-                Layout.alignment: Qt.AlignLeft
-                visible: narrowWindow ? false : true
-                onVisibleChanged: checked = false
-            }
 
             Button {
                 id: reset_button
@@ -592,7 +577,7 @@ ApplicationWindow {
                             Layout.fillWidth: true
                             onPressed: {
                                 main_pane.state = "spike_mode";
-                                drawer_right.modal && drawer_right.close();
+                                drawer.modal && drawer.close();
                             }
                         }
 
@@ -624,7 +609,7 @@ ApplicationWindow {
                             Layout.fillWidth: true
                             onPressed: {
                                 main_pane.state = "patch_mode";
-                                drawer_right.modal && drawer_right.close();
+                                drawer.modal && drawer.close();
                             }
                         }
 
@@ -730,6 +715,7 @@ ApplicationWindow {
     SplitView {
         id: split_view
         anchors.fill: parent
+        anchors.leftMargin: drawer.position * drawer.width
         orientation: Qt.Vertical
         Pane {
             id: top_pane
@@ -985,10 +971,10 @@ ApplicationWindow {
                                 }
                                 py_MainApp.update_displays()
                                 main_pane.state = "normal_mode"
-                                drawer_right.modal && drawer_right.open()
+                                drawer.modal && drawer.open()
                             } else if (main_pane.state != "normal_mode" && mouse.button === Qt.RightButton) {
                                 main_pane.state = "normal_mode"
-                                drawer_right.modal && drawer_right.open()
+                                drawer.modal && drawer.open()
                             }
                         }
                     }
@@ -1021,23 +1007,10 @@ ApplicationWindow {
                 radius: 50
                 anchors.bottom: parent.bottom
                 anchors.right: parent.right
-                onClicked: drawer_right.open()
+                onClicked: drawer.visible ? drawer.close() : drawer.open()
                 text: "\uF1DE"
                 font.family: "fontello"
             }
-        }
-
-        states: State {
-            name: "drawer_pinned"
-            PropertyChanges { target: split_view; anchors.rightMargin : drawer_right.width }
-        }
-        State {
-            name: "drawer_unpinned"
-            PropertyChanges { target: split_view; anchors.rightMargin : undefined }
-        }
-
-        transitions: Transition {
-            PropertyAnimation { properties: "anchors.rightMargin"; easing.type: Easing.InOutQuad }
         }
     }
 
@@ -1046,73 +1019,6 @@ ApplicationWindow {
         onLoaded: item.visible = true
         asynchronous: true
         function hide(){ sourceComponent = undefined;}
-    }
-
-    Component {
-        id: settingsDialog_component
-        Dialog {
-            id: settingsDialog
-            x: Math.round((window.width - width) / 2)
-            y: Math.round(window.height / 6)
-            width: Math.round(Math.min(window.width, window.height) / 3 * 2)
-            modal: true
-            focus: true
-            title: qsTr("Settings")
-
-            standardButtons: Dialog.Ok | Dialog.Cancel
-            onAccepted: {
-                py_MainApp.retranslate(languageBox.displayText)
-                settingsDialog.close()
-                modal = false //if not set, cursor will not change in Spikemode()
-                dialog_loader.hide()
-            }
-            onRejected: {
-                languageBox.currentIndex = languageBox.langIndex
-                settingsDialog.close()
-                modal = false
-                dialog_loader.hide()
-            }
-
-            contentItem: ColumnLayout {
-                id: settingsColumn
-                spacing: 20
-
-                RowLayout {
-                    spacing: 10
-
-                    Label {
-                        text: "Language:"
-                    }
-
-                    ListModel {
-                        id: availableLanguages
-                        ListElement { text: "English (UK)" }
-                    }
-
-                    ComboBox {
-                        id: languageBox
-                        property int langIndex: -1
-                        model: availableLanguages
-                        Layout.fillWidth: true
-                        Component.onCompleted: {
-                            langIndex = find(availableLanguages.get[currentIndex], Qt.MatchFixedString)
-                            if (langIndex !== -1)
-                                currentIndex = langIndex
-                        }
-                    }
-                }
-
-                Label {
-                    text: "Restart required"
-                    color: "#e41e25"
-                    opacity: languageBox.currentIndex !== languageBox.langIndex ? 1.0 : 0.0
-                    horizontalAlignment: Label.AlignHCenter
-                    verticalAlignment: Label.AlignVCenter
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                }
-            }
-        }
     }
 
     Component {
