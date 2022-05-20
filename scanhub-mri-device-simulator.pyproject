@@ -4,6 +4,7 @@
     "simulation_app.py",
     "image_manipulators.py",
     "image_provider.py",
+    "acquisition_control.py",
     "README.rst",
     "LICENSE",
     "views/view.qml",
