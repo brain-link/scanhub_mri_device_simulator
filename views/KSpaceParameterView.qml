@@ -54,7 +54,7 @@ Item {
                         objectName: "hamming"
                         Layout.alignment: Qt.AlignLeft
                         checked: false
-                        onCheckedChanged: { py_MainApp.update_displays() }
+                        onCheckedChanged: { py_SimulationApp.update_displays() }
                     }
                 }
 
@@ -78,7 +78,7 @@ Item {
                         }
                         onValueChanged: {
                             value == to ? rdc_slider.enabled = true : rdc_slider.enabled = false
-                            py_MainApp.update_displays()
+                            py_SimulationApp.update_displays()
                         }
                         Label {
                             leftPadding: 5
@@ -99,7 +99,7 @@ Item {
                         objectName: "zero_fill"
                         checked: false
                         text: qsTr("Zero Fill")
-                        onCheckedChanged: py_MainApp.update_displays()
+                        onCheckedChanged: py_SimulationApp.update_displays()
                     }
                 }
 
@@ -118,7 +118,7 @@ Item {
                         descLabel.text = desc
                         descriptionPane.shown = !descriptionPane.shown;
                     }
-                    onValueChanged: py_MainApp.update_displays()
+                    onValueChanged: py_SimulationApp.update_displays()
                     Label {
                         leftPadding: 5
                         text: qsTr("Signal to Noise (dB)")
@@ -147,7 +147,7 @@ Item {
                     }
                     onValueChanged: {
                         value == to ? partial_fourier_slider.enabled = true : partial_fourier_slider.enabled = false
-                        py_MainApp.update_displays()
+                        py_SimulationApp.update_displays()
                     }
                     Label {
                         leftPadding: 5
@@ -177,7 +177,7 @@ Item {
                         descLabel.text = desc
                         descriptionPane.shown = !descriptionPane.shown;
                     }
-                    onValueChanged: py_MainApp.update_displays()
+                    onValueChanged: py_SimulationApp.update_displays()
                     Label {
                         leftPadding: 5
                         text: qsTr("High Pass Filter")
@@ -206,7 +206,7 @@ Item {
                         descriptionPane.shown = !descriptionPane.shown;
                     }
 
-                    onValueChanged: py_MainApp.update_displays()
+                    onValueChanged: py_SimulationApp.update_displays()
                     Label {
                         leftPadding: 5
                         anchors.left: parent.left
@@ -237,7 +237,7 @@ Item {
                             descLabel.text = desc
                             descriptionPane.shown = !descriptionPane.shown;
                         }
-                        onValueChanged: py_MainApp.update_displays()
+                        onValueChanged: py_SimulationApp.update_displays()
                         Label {
                             leftPadding: 5
                             anchors.left: parent.left
@@ -256,7 +256,7 @@ Item {
                         checked: false
                         text: qsTr("Compress")
                         onCheckedChanged: {
-                            py_MainApp.update_displays();
+                            py_SimulationApp.update_displays();
                             if (checked) {
                                 main_pane.state = "compress_mode";
                             } else {
@@ -282,7 +282,7 @@ Item {
                         descLabel.text = desc
                         descriptionPane.shown = !descriptionPane.shown;
                     }
-                    onValueChanged: py_MainApp.update_displays()
+                    onValueChanged: py_SimulationApp.update_displays()
                     Label {
                         leftPadding: 5
                         anchors.left: parent.left
@@ -317,8 +317,8 @@ Item {
                         Layout.alignment: Qt.AlignHCenter
                         Layout.fillWidth: true
                         onPressed: {
-                            py_MainApp.delete_spikes()
-                            py_MainApp.update_displays()
+                            py_SimulationApp.delete_spikes()
+                            py_SimulationApp.update_displays()
                         }
                     }
                     Button {
@@ -326,8 +326,8 @@ Item {
                         text: "\uE805" // icon-ccw
                         font.family: "fontello"
                         onPressed: {
-                            py_MainApp.undo_spike()
-                            py_MainApp.update_displays()
+                            py_SimulationApp.undo_spike()
+                            py_SimulationApp.update_displays()
                         }
                     }
 
@@ -350,8 +350,8 @@ Item {
                         Layout.alignment: Qt.AlignHCenter
                         Layout.fillWidth: true
                         onPressed: {
-                            py_MainApp.delete_patches()
-                            py_MainApp.update_displays()
+                            py_SimulationApp.delete_patches()
+                            py_SimulationApp.update_displays()
                         }
                     }
                     Button {
@@ -359,8 +359,8 @@ Item {
                         text: "\uE805" // icon-ccw
                         font.family: "fontello"
                         onPressed: {
-                            py_MainApp.undo_patch()
-                            py_MainApp.update_displays()
+                            py_SimulationApp.undo_patch()
+                            py_SimulationApp.update_displays()
                         }
                     }
                 }
@@ -373,8 +373,8 @@ Item {
                     Layout.rightMargin: 20
                     Layout.alignment: Qt.AlignRight
                     onPressed: {
-                        py_MainApp.delete_spikes()
-                        py_MainApp.delete_patches()
+                        py_SimulationApp.delete_spikes()
+                        py_SimulationApp.delete_patches()
                         partial_fourier_slider.value = partial_fourier_slider.default_value
                         zero_fill.checked = zero_fill.default_value
                         noise_slider.value = noise_slider.default_value
@@ -417,7 +417,7 @@ Item {
                     to: 10
                     stepSize: 1
                     value: -3
-                    onValueChanged: py_MainApp.update_displays()
+                    onValueChanged: py_SimulationApp.update_displays()
                     Label {
                         leftPadding: 5
                         anchors.left: parent.left

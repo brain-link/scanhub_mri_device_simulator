@@ -29,7 +29,10 @@ from PySide6.QtGui import QImage, QPixmap, QColor
 
 from PySide6.QtWidgets import QMessageBox
 
+
 from image_manipulators import ImageManipulators
+from image_provider import ImageProvider
+
 
 def qt_msgbox(text='', fatal=False):
     link = 'https://github.com/brain-link/scanhub-mri-device-simulator/issues'
@@ -96,16 +99,45 @@ def open_file(path: str, dtype: np.dtype = np.float32) -> np.ndarray:
                 log.error("Failed to open file", exc_info=True)
                 raise e
 
-class MainApp(QObject):
-    """ Main App
+
+class SimulationApp(QQmlApplicationEngine):
+    """ Simulation App
     This class handles all interaction with the QML user interface
     """
 
-    def __init__(self, context, parent=None):
-        super().__init__(parent)
+    _default_image = 'data/default.dcm'
+    _app_path = pathlib.Path(__file__).parent.absolute()
+    _default_image = str(_app_path.joinpath(_default_image))
 
-        self.win = parent
-        self.ctx = context
+    def __init__(self, parent=None):
+        # Call super class
+        super(SimulationApp, self).__init__(parent)
+
+
+        self._im = ImageManipulators(open_file(self._default_image), is_image=True)
+
+        # Image manipulator and storage initialisation with default image
+        self.addImageProvider("imgs", ImageProvider(self._im))
+
+        # Expose the ... to the QML code
+        # self.rootContext().setContextProperty("", self.)
+
+        # Connects here
+
+        # Load the QML file
+        qml_file = os.path.join(os.path.dirname(__file__), "views/view.qml")
+        self.load(qml_file)
+        if not self.rootObjects():
+            sys.exit(-1)
+
+        self.ctx = self.rootContext()
+        self.win = self.rootObjects()[0]
+
+        self.ctx.setContextProperty("py_SimulationApp", self)
+
+
+        #self.win = parent
+        #self.ctx = context
 
         def bind(object_name: str) -> QtQuick.QQuickItem:
             """Finds the QML Object with the object name
@@ -144,7 +176,6 @@ class MainApp(QObject):
         flipping through the existing list of images. If the image is not
         accessible or does not contain an image, it is removed from the list.
         """
-        global im
         try:
             path = self.url_list[self.current_img]
             log.info(f"Changing to image: {path}")
@@ -159,7 +190,7 @@ class MainApp(QObject):
         if self.is_image:
             self.channels = 0
             self.img_instances = {}
-            im = ImageManipulators(self.file_data, self.is_image)
+            self._im = ImageManipulators(self.file_data, self.is_image)
         else:
             self.channels = self.file_data.shape[0]
             for channel in range(self.channels):
@@ -167,7 +198,7 @@ class MainApp(QObject):
                 file_data = self.file_data[channel, :, :]
                 self.img_instances[channel] = \
                     ImageManipulators(file_data, self.is_image)
-            im = self.img_instances[0]
+            self._im = self.img_instances[0]
 
         # Let the QML thumbnails list know about the number of channels
         self.ui_thumbnails.setProperty("model", self.channels)
@@ -218,8 +249,7 @@ class MainApp(QObject):
             channel (int): Index of the selected channel
 
         """
-        global im
-        im = self.img_instances[int(channel)]
+        self._im = self.img_instances[int(channel)]
         self.update_displays()
 
     @Slot(str, name="save_img")
@@ -237,15 +267,15 @@ class MainApp(QObject):
         k_path = filename + '_k' + ext
         i_path = filename + '_i' + ext
         if ext.lower() == '.tiff':
-            Image.fromarray(im.img).save(i_path)
-            Image.fromarray(im.kspace_display_data).save(k_path)
+            Image.fromarray(self._im.img).save(i_path)
+            Image.fromarray(self._im.kspace_display_data).save(k_path)
         elif ext == '.png':
-            Image.fromarray(im.img).convert(mode='L').save(i_path)
-            Image.fromarray(im.kspace_display_data).convert(mode='L').save(
+            Image.fromarray(self._im.img).convert(mode='L').save(i_path)
+            Image.fromarray(self._im.kspace_display_data).convert(mode='L').save(
                 k_path)
         elif ext == '.npy':
-            np.save(i_path, im.img)
-            np.save(k_path, im.kspacedata)
+            np.save(i_path, self._im.img)
+            np.save(k_path, self._im.kspacedata)
 
     @Slot(float, float, name="add_spike")
     def add_spike(self, mouse_x, mouse_y):
@@ -258,7 +288,7 @@ class MainApp(QObject):
             mouse_x: click position on the x-axis
             mouse_y: click position on the y-axis
         """
-        im.spikes.append((int(mouse_y), int(mouse_x)))
+        self._im.spikes.append((int(mouse_y), int(mouse_x)))
 
     @Slot(float, float, float, name="add_patch")
     def add_patch(self, mouse_x, mouse_y, radius):
@@ -272,29 +302,29 @@ class MainApp(QObject):
             mouse_y: click position on the y-axis
             radius: size of the patch
         """
-        im.patches.append((int(mouse_y), int(mouse_x), int(radius)))
+        self._im.patches.append((int(mouse_y), int(mouse_x), int(radius)))
 
     @Slot(name="delete_spikes")
     def delete_spikes(self):
         """Deletes manually added kspace spikes"""
-        im.spikes = []
+        self._im.spikes = []
 
     @Slot(name="delete_patches")
     def delete_patches(self):
         """Deletes manually added kspace patches"""
-        im.patches = []
+        self._im.patches = []
 
     @Slot(name="undo_patch")
     def undo_patch(self):
         """Deletes the last patch"""
-        if im.patches:
-            del im.patches[-1]
+        if self._im.patches:
+            del self._im.patches[-1]
 
     @Slot(name="undo_spike")
     def undo_spike(self):
         """Deletes the last spike"""
-        if im.spikes:
-            del im.spikes[-1]
+        if self._im.spikes:
+            del self._im.spikes[-1]
 
     @Slot(name="update_displays")
     def update_displays(self):
@@ -323,64 +353,64 @@ class MainApp(QObject):
         """ Apply kspace modifiers to kspace and get resulting image"""
 
         # Get a copy of the original k-space data to play with
-        im.resize_arrays(im.orig_kspacedata.shape)
-        im.kspacedata[:] = im.orig_kspacedata
+        self._im.resize_arrays(self._im.orig_kspacedata.shape)
+        self._im.kspacedata[:] = self._im.orig_kspacedata
 
         # 01 - Noise
         new_snr = self.ui_noise_slider.property('value')
         generate_new = False
-        if new_snr != im.signal_to_noise:
+        if new_snr != self._im.signal_to_noise:
             generate_new = True
-            im.signal_to_noise = new_snr
-        im.add_noise(im.kspacedata, new_snr, im.noise_map, generate_new)
+            self._im.signal_to_noise = new_snr
+        self._im.add_noise(self._im.kspacedata, new_snr, self._im.noise_map, generate_new)
 
         # 02 - Spikes
-        im.apply_spikes(im.kspacedata, im.spikes)
+        self._im.apply_spikes(self._im.kspacedata, self._im.spikes)
 
         # 03 - Patches
-        im.apply_patches(im.kspacedata, im.patches)
+        self._im.apply_patches(self._im.kspacedata, self._im.patches)
 
         # 04 - Reduced scan percentage
         if self.ui_rdc_slider.property("enabled"):
             v_ = self.ui_rdc_slider.property("value")
-            im.reduced_scan_percentage(im.kspacedata, v_)
+            self._im.reduced_scan_percentage(self._im.kspacedata, v_)
 
         # 05 - Partial fourier
         if self.ui_partial_fourier_slider.property("enabled"):
             v_ = self.ui_partial_fourier_slider.property("value")
             zf = self.ui_zero_fill.property("checked")
-            im.partial_fourier(im.kspacedata, v_, zf)
+            self._im.partial_fourier(self._im.kspacedata, v_, zf)
 
         # 06 - High pass filter
         v_ = self.ui_high_pass_slider.property("value")
-        im.high_pass_filter(im.kspacedata, v_)
+        self._im.high_pass_filter(self._im.kspacedata, v_)
 
         # 07 - Low pass filter
         v_ = self.ui_low_pass_slider.property("value")
-        im.low_pass_filter(im.kspacedata, v_)
+        self._im.low_pass_filter(self._im.kspacedata, v_)
 
         # 08 - Undersample k-space
         v_ = self.ui_undersample_kspace.property("value")
         if int(v_):
             compress = self.ui_compress.property("checked")
-            im.undersample(im.kspacedata, int(v_), compress)
+            self._im.undersample(self._im.kspacedata, int(v_), compress)
 
         # 09 - DC signal decrease
         v_ = self.ui_decrease_dc.property("value")
         if int(v_) > 1:
-            im.decrease_dc(im.kspacedata, int(v_))
+            self._im.decrease_dc(self._im.kspacedata, int(v_))
 
         # 10 - Hamming filter
         if self.ui_hamming.property("checked"):
-            im.hamming(im.kspacedata)
+            self._im.hamming(self._im.kspacedata)
 
         # 11 - Acquisition simulation progress
         if self.ui_filling.property("value") < 100:
             mode = self.ui_filling_mode.property("currentIndex")
-            im.filling(im.kspacedata, self.ui_filling.property("value"), mode)
+            self._im.filling(self._im.kspacedata, self.ui_filling.property("value"), mode)
 
         # Get the resulting image
-        im.np_ifft(kspace=im.kspacedata, out=im.img)
+        self._im.np_ifft(kspace=self._im.kspacedata, out=self._im.img)
 
         # Get display properties
         kspace_const = int(self.ui_ksp_const.property('value'))
@@ -388,101 +418,4 @@ class MainApp(QObject):
         ww = self.ui_image_display.property("ww")
         wc = self.ui_image_display.property("wc")
         win_val = {'ww': ww, 'wc': wc}
-        im.prepare_displays(kspace_const, win_val)
-
-
-class ImageProvider(QtQuick.QQuickImageProvider):
-    """
-    Contains the interface between numpy and Qt.
-    Qt calls MainApp.update_displays on UI change
-    that method requests new images to display
-    pyqt channels it back to Qt GUI
-
-    """
-
-    def __init__(self):
-        QtQuick.QQuickImageProvider. \
-            __init__(self, QtQuick.QQuickImageProvider.Pixmap)
-
-    def requestPixmap(self, id_str: str, size, requested_size):
-        """Qt calls this function when an image changes
-
-        Parameters:
-            id_str: identifies the requested image
-            size: This is used to set the width and height of the relevant Image.
-            requested_size: image size requested by QML (usually ignored)
-
-        Returns:
-            QPixmap: an image in the format required by Qt
-        """
-
-
-        try:
-            if id_str.startswith('image'):
-                q_im = QImage(im.image_display_data,             # data
-                              im.image_display_data.shape[1],    # width
-                              im.image_display_data.shape[0],    # height
-                              im.image_display_data.strides[0],  # bytes/line
-                              QImage.Format_Grayscale8)          # format
-
-            elif id_str.startswith('kspace'):
-                q_im = QImage(im.kspace_display_data,             # data
-                              im.kspace_display_data.shape[1],    # width
-                              im.kspace_display_data.shape[0],    # height
-                              im.kspace_display_data.strides[0],  # bytes/line
-                              QImage.Format_Grayscale8)           # format
-
-            elif id_str.startswith('thumb'):
-                thumb_id = int(id_str[6:6+id_str[6:].find('_')])
-                im_c = py_mainapp.img_instances[thumb_id]
-                q_im = QImage(im_c.image_display_data,             # data
-                              im_c.image_display_data.shape[1],    # width
-                              im_c.image_display_data.shape[0],    # height
-                              im_c.image_display_data.strides[0],  # bytes/line
-                              QImage.Format_Grayscale8)            # format
-
-            else:
-                raise NameError
-
-        except NameError:
-            print(NameError)
-            # On error, we return a red image of requested size
-            q_im = QPixmap(requested_size)
-            q_im.fill(QColor('red'))
-
-        return QPixmap(q_im)#, QPixmap(q_im).size()
-
-
-# Define im global
-default_image = 'data/default.dcm'
-app_path = pathlib.Path(__file__).parent.absolute()
-default_image = str(app_path.joinpath(default_image))
-im = ImageManipulators(open_file(default_image), is_image=True)
-
-
-class SimulationView(QQmlApplicationEngine):
-
-    def __init__(self,  parent=None):
-        # Call super class
-        super(SimulationView, self).__init__(parent)
-
-        # Image manipulator and storage initialisation with default image
-        self.addImageProvider("imgs", ImageProvider())
-
-        # Expose the ... to the QML code
-        # self.rootContext().setContextProperty("", self.)
-
-        # Connects here
-
-        # Load the QML file
-        qml_file = os.path.join(os.path.dirname(__file__), "views/view.qml")
-        self.load(qml_file)
-        if not self.rootObjects():
-            sys.exit(-1)
-
-        # TBD refactor MainApp out
-        ctx = self.rootContext()
-        self.win = self.rootObjects()[0]
-        self._mainapp = MainApp(ctx, self.win)
-
-        ctx.setContextProperty("py_MainApp", self._mainapp)
+        self._im.prepare_displays(kspace_const, win_val)

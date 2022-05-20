@@ -9,7 +9,7 @@ from PySide6.QtCore import qInstallMessageHandler
 from PySide6.QtGui import QIcon, QFontDatabase
 from PySide6.QtWidgets import QApplication
 
-from simulation_view import SimulationView
+from simulation_app import SimulationApp
 
 
 # Logging setup
@@ -55,5 +55,5 @@ if __name__ == "__main__":
     app.setOrganizationDomain("brain-link.de")
     app.setApplicationName("ScanHub MRI Simulator")
 
-    view = SimulationView()
+    simApp = SimulationApp()
     sys.exit(app.exec())

@@ -1,7 +1,9 @@
 {
     "files": [
     "main.py",
+    "simulation_app.py",
     "image_manipulators.py",
+    "image_provider.py",
     "README.rst",
     "LICENSE",
     "views/view.qml",
@@ -11,7 +13,6 @@
     "views/shaders/gammaadjust.frag",
     "views/shaders/gammaadjust.frag.qsb",
     "logging.conf",
-    "simulation_view.py",
     "resources/fontello.ttf",
     "resources/scanhub.ico",
     "resources/brain-link.ico"]

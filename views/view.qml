@@ -60,7 +60,7 @@ ApplicationWindow {
                         title: qsTr("Please choose a file")
                         //: File open dialog title bar
                         onAccepted: {
-                            py_MainApp.load_new_img(selectedFiles)
+                            py_SimulationApp.load_new_img(selectedFiles)
                             dialog_loader.hide()
                         }
                         onRejected: dialog_loader.hide()
@@ -89,7 +89,7 @@ ApplicationWindow {
                         title: qsTr("Save image files")
                         //: Save dialog title bar
                         onAccepted: {
-                            py_MainApp.save_img(selectedFile)
+                            py_SimulationApp.save_img(selectedFile)
                             dialog_loader.hide()
                             }
                         onRejected: dialog_loader.hide()
@@ -188,7 +188,7 @@ ApplicationWindow {
                 handle.height: 18
                 handle.width: 8
                 enabled: !play_anim.running
-                onValueChanged: py_MainApp.update_displays()
+                onValueChanged: py_SimulationApp.update_displays()
                 PropertyAnimation {
                     property int len: 10000
                     id: play_anim
@@ -300,7 +300,7 @@ ApplicationWindow {
                     }
                 }
                 onVisibleChanged: top_pane.visible == true ? top_pane.state = "open" : top_pane.state = ""
-                onCurrentIndexChanged: if (currentIndex >= 0) {py_MainApp.channel_change(currentIndex)}
+                onCurrentIndexChanged: if (currentIndex >= 0) {py_SimulationApp.channel_change(currentIndex)}
                 ScrollIndicator.horizontal: ScrollIndicator { objectName: "lol" }
             }
 
@@ -361,7 +361,7 @@ ApplicationWindow {
                 anchors.fill: parent
                 enabled: true
                 onDropped: {
-                    py_MainApp.load_new_img(drop.urls);
+                    py_SimulationApp.load_new_img(drop.urls);
                 }
             }
 
@@ -404,7 +404,7 @@ ApplicationWindow {
                             } else if (image_mouse.pressedButtons == Qt.MiddleButton) {
                                 image.ww = mouseX / parent.width;
                                 image.wc = mouseY / parent.height;
-                                py_MainApp.update_displays()
+                                py_SimulationApp.update_displays()
                             }
                         }
 
@@ -413,15 +413,15 @@ ApplicationWindow {
                             image_gamma.brightness = 0
                             image.ww = 1
                             image.wc = 0.5
-                            py_MainApp.update_displays()
+                            py_SimulationApp.update_displays()
                             kspace_item.visible = !kspace_item.visible
                         }
 
                         onWheel: {
                             if (wheel.angleDelta.y > 0) {
-                                py_MainApp.next_img(1)}
+                                py_SimulationApp.next_img(1)}
                             else {
-                                py_MainApp.next_img(0)}
+                                py_SimulationApp.next_img(0)}
                         }
                     }
 
@@ -509,12 +509,12 @@ ApplicationWindow {
                                 var wd_ratio = kspace.paintedWidth/kspace.sourceSize.width;
                                 var ht_ratio = kspace.paintedHeight/kspace.sourceSize.height;
                                 if (main_pane.state == "spike_mode") {
-                                    py_MainApp.add_spike((mouseX-1)/wd_ratio, (mouseY-1)/ht_ratio)
+                                    py_SimulationApp.add_spike((mouseX-1)/wd_ratio, (mouseY-1)/ht_ratio)
                                 }
                                 else if (main_pane.state == "patch_mode") {
-                                    py_MainApp.add_patch((mouseX-1)/wd_ratio, (mouseY-1)/ht_ratio, 2)
+                                    py_SimulationApp.add_patch((mouseX-1)/wd_ratio, (mouseY-1)/ht_ratio, 2)
                                 }
-                                py_MainApp.update_displays()
+                                py_SimulationApp.update_displays()
                                 main_pane.state = "normal_mode"
                                 drawer.modal && drawer.open()
                             } else if (main_pane.state != "normal_mode" && mouse.button === Qt.RightButton) {
