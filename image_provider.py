@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 # -*- conding: utf-8 -*-
-import logging
-log = logging.getLogger(__name__)
-import logging.config
-
 from PySide6 import QtQuick
 from PySide6.QtGui import QImage, QPixmap, QColor
 

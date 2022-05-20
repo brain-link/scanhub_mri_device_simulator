@@ -5,10 +5,6 @@ import pathlib
 import sys
 import numpy as np
 
-import logging
-log = logging.getLogger(__name__)
-import logging.config
-
 # Attempting to use mkl_fft (faster FFT library for Intel CPUs). Fallback is np
 try:
     import mkl_fft as m
