@@ -7,28 +7,20 @@ import numpy as np
 
 import logging
 log = logging.getLogger(__name__)
+import logging.config
 
 from uuid import uuid4
 
-import logging.config
 import PIL
-import numpy as np
+from PIL import Image
 import pydicom
 from pydicom import errors
-from PIL import Image
 
 from PySide6 import QtQuick
 from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtCore import Signal, Slot
-
-
-from PySide6.QtCore import QObject, QUrl, qInstallMessageHandler, Qt
-
-from PySide6.QtGui import QGuiApplication
-from PySide6.QtGui import QImage, QPixmap, QColor
-
+from PySide6.QtCore import QObject, QUrl, Qt
 from PySide6.QtWidgets import QMessageBox
-
 
 from image_manipulators import ImageManipulators
 from image_provider import ImageProvider

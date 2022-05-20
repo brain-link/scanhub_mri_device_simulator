@@ -1,21 +1,8 @@
 #!/usr/bin/env python
 # -*- conding: utf-8 -*-
-import os
-import pathlib
-import sys
-import numpy as np
-
 import logging
 log = logging.getLogger(__name__)
-
-from uuid import uuid4
-
 import logging.config
-import PIL
-import numpy as np
-import pydicom
-from pydicom import errors
-from PIL import Image
 
 from PySide6 import QtQuick
 from PySide6.QtGui import QImage, QPixmap, QColor
@@ -31,7 +18,7 @@ class ImageProvider(QtQuick.QQuickImageProvider):
 
     """
 
-    def __init__(self, im):
+    def __init__(self, im: ImageManipulators):
         QtQuick.QQuickImageProvider. \
             __init__(self, QtQuick.QQuickImageProvider.Pixmap)
         self._im = im

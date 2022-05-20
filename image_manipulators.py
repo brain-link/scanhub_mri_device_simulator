@@ -7,27 +7,7 @@ import numpy as np
 
 import logging
 log = logging.getLogger(__name__)
-
-from uuid import uuid4
-
 import logging.config
-import PIL
-import numpy as np
-import pydicom
-from pydicom import errors
-from PIL import Image
-
-from PySide6 import QtQuick
-from PySide6.QtQml import QQmlApplicationEngine
-from PySide6.QtCore import Signal, Slot
-
-
-from PySide6.QtCore import QObject, QUrl, qInstallMessageHandler, Qt
-
-from PySide6.QtGui import QGuiApplication
-from PySide6.QtGui import QImage, QPixmap, QColor
-
-from PySide6.QtWidgets import QMessageBox
 
 # Attempting to use mkl_fft (faster FFT library for Intel CPUs). Fallback is np
 try:
