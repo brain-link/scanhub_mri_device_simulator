@@ -327,8 +327,7 @@ class ImageManipulators:
         window = np.outer(np.hamming(x), np.hamming(y))
         kspace *= window
 
-    @staticmethod
-    def undersample(kspace: np.ndarray, factor: int, compress: bool):
+    def undersample(self, kspace: np.ndarray, factor: int, compress: bool):
         """ Skipping every nth kspace line
 
         Simulates acquiring every nth (where n is the acceleration factor) line
@@ -348,7 +347,7 @@ class ImageManipulators:
             if compress:
                 q = kspace[~mask]
                 q = q.reshape(q.size // kspace.shape[1], kspace.shape[1])
-                im.resize_arrays(q.shape)
+                self.resize_arrays(q.shape)
                 kspace[:] = q[:]
             else:
                 kspace[mask] = 0
@@ -409,13 +408,13 @@ class ImageManipulators:
             mode (int): kspace filling mode
         """
         if mode == 0:  # Linear filling
-            im.filling_linear(kspace, value)
+            ImageManipulators.filling_linear(kspace, value)
         elif mode == 1:  # Centric filling
-            im.filling_centric(kspace, value)
+            ImageManipulators.filling_centric(kspace, value)
         elif mode == 2:  # Single shot EPI blipped
-            im.filling_ss_epi_blipped(kspace, value)
+            ImageManipulators.filling_ss_epi_blipped(kspace, value)
         elif mode == 3:  # Archimedean spiral
-            # im.filling_spiral(kspace, value)
+            # filling_spiral(kspace, value)
             pass
 
     @staticmethod
