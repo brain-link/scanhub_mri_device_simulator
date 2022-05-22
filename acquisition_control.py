@@ -8,6 +8,13 @@ import random
 from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QVBoxLayout
 from PySide6 import QtGui
 
+from enum import Enum
+
+class AcquisitionCommands(Enum):
+    START = 0
+    STOP = 1
+    PAUSE = 2
+
 class AcquisitionControl(QObject):
 
     signalStatus = Signal(str)
