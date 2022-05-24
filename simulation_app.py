@@ -157,7 +157,7 @@ class SimulationApp(QQmlApplicationEngine):
             setattr(self, "ui_" + ctrl, bind(ctrl))
 
         # Bind Acquisition Control to UI
-        self._acquisition_control.signalStartMeasurement.connect(self.ui_play_btn.triggerPlay)
+        self._acquisition_control.signalStartMeasurement.connect(self.ui_play_btn.externalTriggerPlay)
         self._acquisition_control.signalStart.emit()
 
         # Initialise an empty list of image paths that can later be filled
@@ -167,6 +167,12 @@ class SimulationApp(QQmlApplicationEngine):
         self.is_image = True
         self.channels = 1
         self.img_instances = {}
+
+    @Slot(name="kspace_simulation_finished")
+    def kspace_simulation_finished(self):
+        """Called when the kspace simulation is finished"""
+        print("kspace_simulation_finished")
+        self._acquisition_control.upload_data_to_blob(self._im.kspacedata, 'raw-mri')
 
     def execute_load(self):
         """ Replaces the ImageManipulators class therefore changing the image

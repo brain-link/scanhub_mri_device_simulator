@@ -165,11 +165,19 @@ ApplicationWindow {
                 ToolTip.visible: hovered
                 ToolTip.timeout: 1500
                 highlighted: play_anim.running
-                onPressed: triggerPlay()
+                onPressed: internalTriggerPlay()
                 Shortcut {
                     sequence: "F5"
                     onActivated: play_btn.onPressed()
                     context: Qt.ApplicationShortcut
+                }
+                function internalTriggerPlay() {
+                    play_anim.notify_enabled = false
+                    triggerPlay()
+                }
+                function externalTriggerPlay() {
+                    play_anim.notify_enabled = true
+                    triggerPlay()
                 }
                 function triggerPlay() {
                     if (filling.value == 100)
@@ -193,11 +201,16 @@ ApplicationWindow {
                 onValueChanged: py_SimulationApp.update_displays()
                 PropertyAnimation {
                     property int len: 10000
+                    property bool notify_enabled: false
                     id: play_anim
                     target: filling
                     property: "value"
                     to: 100
                     duration: (100 - filling.value)/100 * len
+                    onFinished: {
+                        if(notify_enabled)
+                            py_SimulationApp.kspace_simulation_finished()
+                    }
                 }
             }
 

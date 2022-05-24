@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 # -*- conding: utf-8 -*-
-from PySide6.QtCore import QObject, QThread, Signal, Slot
-
-
 import sys
 import random
 
 import time, os
+import requests
+import uuid
+
+import numpy as np
+
+from PySide6.QtCore import QObject, QThread, Signal, Slot
+from pathlib import Path
 
 from PySide6.QtWidgets import (
         QApplication,
@@ -25,6 +29,11 @@ from azure.storage.queue import (
         BinaryBase64DecodePolicy
 )
 
+from azure.storage.blob import (
+    BlobClient, 
+    BlobServiceClient, 
+    ContainerClient
+)
 
 class AcquisitionCommands(Enum):
     """A class which contains the commands for the acquisition control.
@@ -103,7 +112,7 @@ class AcquisitionControl(QObject):
 
     @Slot()
     def processCommand(self, acquisitionCommand: AcquisitionCommands) -> bool:
-        print('process Command')
+        print('Process Command')
         match acquisitionCommand:
             case AcquisitionCommands.MEAS_START:
                 print(AcquisitionCommands.MEAS_START)
@@ -121,20 +130,30 @@ class AcquisitionControl(QObject):
             case _:
                 return False
 
-    def upload_blob_from_path(self,storage_connection_string,container_name):
+    def upload_data_to_blob(self, array: np.ndarray, container_name):
         try:
+
+            tmp_file_path = os.fspath(Path(__file__).resolve().parent / "tmp/data.npy")
+
+            print("save data to " + tmp_file_path)
+            np.save(tmp_file_path, array)
+
             # Instantiate a new BlobServiceClient and a new ContainerClient
             # blob_service_client = BlobServiceClient.from_connection_string(storage_connection_string)
             # container_client = blob_service_client.get_container_client(container_name)
-            container_client = ContainerClient.from_connection_string(storage_connection_string, container_name)
+            container_client = ContainerClient.from_connection_string(self._connect_str, container_name)
             
             if not container_client.exists():
                 container_client.create_container()
             
-            for f in list_files():
-                with open(f["local_path"], "rb") as data:
-                    blob_client = container_client.get_blob_client(f["file_name"])
-                    blob_client.upload_blob(data,overwrite=True)
+            with open(tmp_file_path, "rb") as data:
+                blob_client = container_client.get_blob_client('kspace.npy')
+                blob_client.upload_blob(data,overwrite=True)
+
+            # for f in list_files():
+            #     with open(f["local_path"], "rb") as data:
+            #         blob_client = container_client.get_blob_client(f["file_name"])
+            #         blob_client.upload_blob(data,overwrite=True)
             return True
 
         except Exception as e:

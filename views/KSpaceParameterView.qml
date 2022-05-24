@@ -5,8 +5,6 @@ import QtQuick.Dialogs
 
 
 Item {
-    anchors.fill: parent
-
     RowLayout {
         spacing: 0
         id: switches
