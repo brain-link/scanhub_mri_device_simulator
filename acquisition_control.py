@@ -70,28 +70,29 @@ class AcquisitionControl(QObject):
     def _connectSignals(self):
         self.parent().aboutToQuit.connect(self.forceWorkerQuit)
 
+        
+
 
     def createWorkerThread(self):
-
         # Setup the worker object and the worker_thread.
-        self.worker = WorkerThread(self._connect_str)
-        self.worker_thread = QThread()
-        self.worker.moveToThread(self.worker_thread)
-        self.worker_thread.start()
+        self._command_worker = CommandWorkerThread(self._connect_str)
+        self._command_worker_thread = QThread()
+        self._command_worker.moveToThread(self._command_worker_thread)
+        self._command_worker_thread.start()
 
         # Connect any worker signals
-        self.worker.signalStatus.connect(self.signalStatus)
-        self.worker.signalCommand.connect(self.processCommand)
-        self.signalStart.connect(self.worker.startWork)
+        self._command_worker.signalStatus.connect(self.signalStatus)
+        self._command_worker.signalCommand.connect(self.processCommand)
+        self.signalStart.connect(self._command_worker.startWork)
 
     @Slot()
     def forceWorkerReset(self):      
-        if self.worker_thread.isRunning():
+        if self._command_worker_thread.isRunning():
             print('Terminating thread.')
-            self.worker_thread.terminate()
+            self._command_worker_thread.terminate()
 
             print('Waiting for thread termination.')
-            self.worker_thread.wait()
+            self._command_worker_thread.wait()
 
             self.signalStatus.emit('Idle.')
 
@@ -99,9 +100,9 @@ class AcquisitionControl(QObject):
             self.createWorkerThread()
 
     def forceWorkerQuit(self):
-        if self.worker_thread.isRunning():
-            self.worker_thread.terminate()
-            self.worker_thread.wait()
+        if self._command_worker_thread.isRunning():
+            self._command_worker_thread.terminate()
+            self._command_worker_thread.wait()
 
     @Slot()
     def processCommand(self, acquisitionCommand: AcquisitionCommands) -> bool:
@@ -123,7 +124,7 @@ class AcquisitionControl(QObject):
             case _:
                 return False
 
-class WorkerThread(QObject):
+class CommandWorkerThread(QObject):
     """A class that implements the acquisiton control worker thread
     """
     signalStatus = Signal(str)
