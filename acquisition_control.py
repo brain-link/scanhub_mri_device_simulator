@@ -70,9 +70,6 @@ class AcquisitionControl(QObject):
     def _connectSignals(self):
         self.parent().aboutToQuit.connect(self.forceWorkerQuit)
 
-        
-
-
     def createWorkerThread(self):
         # Setup the worker object and the worker_thread.
         self._command_worker = CommandWorkerThread(self._connect_str)
@@ -123,6 +120,27 @@ class AcquisitionControl(QObject):
             # default
             case _:
                 return False
+
+    def upload_blob_from_path(self,storage_connection_string,container_name):
+        try:
+            # Instantiate a new BlobServiceClient and a new ContainerClient
+            # blob_service_client = BlobServiceClient.from_connection_string(storage_connection_string)
+            # container_client = blob_service_client.get_container_client(container_name)
+            container_client = ContainerClient.from_connection_string(storage_connection_string, container_name)
+            
+            if not container_client.exists():
+                container_client.create_container()
+            
+            for f in list_files():
+                with open(f["local_path"], "rb") as data:
+                    blob_client = container_client.get_blob_client(f["file_name"])
+                    blob_client.upload_blob(data,overwrite=True)
+            return True
+
+        except Exception as e:
+            print(e.message, e.args)
+            return False
+
 
 class CommandWorkerThread(QObject):
     """A class that implements the acquisiton control worker thread
