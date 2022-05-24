@@ -25,6 +25,7 @@ from PySide6.QtWidgets import QMessageBox
 from image_manipulators import ImageManipulators
 from image_provider import ImageProvider
 
+from acquisition_control import AcquisitionControl
 
 def qt_msgbox(text='', fatal=False):
     link = 'https://github.com/brain-link/scanhub-mri-device-simulator/issues'
@@ -105,7 +106,9 @@ class SimulationApp(QQmlApplicationEngine):
         # Call super class
         super(SimulationApp, self).__init__(parent)
 
-
+        # Initialise member variables
+        self._acquisition_control = AcquisitionControl(parent)
+        
         self._im = ImageManipulators(open_file(self._default_image), is_image=True)
 
         # Image manipulator and storage initialisation with default image
@@ -147,11 +150,15 @@ class SimulationApp(QQmlApplicationEngine):
                  "decrease_dc", "partial_fourier_slider", "undersample_kspace",
                  "high_pass_slider", "low_pass_slider", "ksp_const", "filling",
                  "hamming", "rdc_slider", "zero_fill", "compress", "droparea",
-                 "filling_mode", "thumbnails"]
+                 "filling_mode", "thumbnails", "play_btn"]
 
         # Binding UI elements and controls
         for ctrl in ctrls:
             setattr(self, "ui_" + ctrl, bind(ctrl))
+
+        # Bind Acquisition Control to UI
+        self._acquisition_control.signalStartMeasurement.connect(self.ui_play_btn.triggerPlay)
+        self._acquisition_control.signalStart.emit()
 
         # Initialise an empty list of image paths that can later be filled
         self.url_list = []

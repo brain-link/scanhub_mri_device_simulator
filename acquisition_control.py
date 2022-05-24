@@ -26,44 +26,11 @@ from azure.storage.queue import (
 )
 
 
-#if __name__ == '__main__':
-#    print("AcquisitionControl started")
-
-#    # DEBUG
-#    os.environ['STORAGE_CONNECTION_STRING'] = 'DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;'
-
-#    # Retrieve the connection string from an environment
-#    # variable named AZURE_STORAGE_CONNECTION_STRING
-#    connect_str = os.getenv("STORAGE_CONNECTION_STRING")
-
-#    # queue name
-#    q_name_tasks = "acquisition-control-queue"
-#    q_name_results = "acquistion-control-results-queue"
-
-#    # connect to queue
-#    queue_client_tasks = QueueClient.from_connection_string(connect_str, q_name_tasks,
-#                            message_encode_policy = BinaryBase64EncodePolicy(),
-#                            message_decode_policy = BinaryBase64DecodePolicy())
-#    queue_client_results = QueueClient.from_connection_string(connect_str, q_name_results,
-#                            message_encode_policy = BinaryBase64EncodePolicy(),
-#                            message_decode_policy = BinaryBase64DecodePolicy())
-#    # queue_client_results.create_queue()
-#    while(True):
-#        messages = queue_client_tasks.receive_messages()
-
-#        for message in messages:
-#            print(message)
-#            print("Dequeueing message: " + message.content.decode('UTF-8'))
-#            queue_client_tasks.delete_message(message.id, message.pop_receipt)
-
-#            print("Adding message: " + message.content.decode('UTF-8'))
-#            queue_client_results.send_message(message.content)
-
-#        time.sleep(1)
-
-
 class AcquisitionCommands(Enum):
+    """A class which contains the commands for the acquisition control.
 
+    The commands are defined as an enum.
+    """
     # MEASURMENT
     MEAS_START = 1000
     MEAS_STOP = 1001
@@ -71,6 +38,10 @@ class AcquisitionCommands(Enum):
 
 
 class AcquisitionControl(QObject):
+    """A class which contains methods to communicate with the ScanHub
+
+    This class will establish a connection to ScanHub and receive/send commands
+    """
 
     signalStatus = Signal(str)
 
@@ -153,7 +124,8 @@ class AcquisitionControl(QObject):
                 return False
 
 class WorkerThread(QObject):
-
+    """A class that implements the acquisiton control worker thread
+    """
     signalStatus = Signal(str)
     signalCommand = Signal(AcquisitionCommands)
 
@@ -204,7 +176,9 @@ class WorkerThread(QObject):
                 return True
         return False
 
-#DEBUG
+
+
+#DEBUG CODE STARTING HERE
 class Window(QWidget):
     def __init__(self):
         QWidget.__init__(self)
@@ -251,3 +225,38 @@ if __name__=='__main__':
     gui.show()
 
     sys.exit(app.exec())
+
+#if __name__ == '__main__':
+#    print("AcquisitionControl started")
+
+#    # DEBUG
+#    os.environ['STORAGE_CONNECTION_STRING'] = 'DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;'
+
+#    # Retrieve the connection string from an environment
+#    # variable named AZURE_STORAGE_CONNECTION_STRING
+#    connect_str = os.getenv("STORAGE_CONNECTION_STRING")
+
+#    # queue name
+#    q_name_tasks = "acquisition-control-queue"
+#    q_name_results = "acquistion-control-results-queue"
+
+#    # connect to queue
+#    queue_client_tasks = QueueClient.from_connection_string(connect_str, q_name_tasks,
+#                            message_encode_policy = BinaryBase64EncodePolicy(),
+#                            message_decode_policy = BinaryBase64DecodePolicy())
+#    queue_client_results = QueueClient.from_connection_string(connect_str, q_name_results,
+#                            message_encode_policy = BinaryBase64EncodePolicy(),
+#                            message_decode_policy = BinaryBase64DecodePolicy())
+#    # queue_client_results.create_queue()
+#    while(True):
+#        messages = queue_client_tasks.receive_messages()
+
+#        for message in messages:
+#            print(message)
+#            print("Dequeueing message: " + message.content.decode('UTF-8'))
+#            queue_client_tasks.delete_message(message.id, message.pop_receipt)
+
+#            print("Adding message: " + message.content.decode('UTF-8'))
+#            queue_client_results.send_message(message.content)
+
+#        time.sleep(1)

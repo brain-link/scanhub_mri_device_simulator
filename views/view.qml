@@ -157,6 +157,7 @@ ApplicationWindow {
 
             ToolButton {
                 id: play_btn
+                objectName: "play_btn"
                 text: play_anim.running ? "\uE804" : "\uE803" // icon-pause : icon-play
                 font.family: "fontello"
                 ToolTip.text: "Play/Pause (F5)"
@@ -164,15 +165,16 @@ ApplicationWindow {
                 ToolTip.visible: hovered
                 ToolTip.timeout: 1500
                 highlighted: play_anim.running
-                onPressed: {
-                    if (filling.value == 100)
-                        filling.value = 0
-                    play_anim.running ? play_anim.stop() : play_anim.start()
-                }
+                onPressed: triggerPlay()
                 Shortcut {
                     sequence: "F5"
                     onActivated: play_btn.onPressed()
                     context: Qt.ApplicationShortcut
+                }
+                function triggerPlay() {
+                    if (filling.value == 100)
+                        filling.value = 0
+                    play_anim.running ? play_anim.stop() : play_anim.start()
                 }
             }
 

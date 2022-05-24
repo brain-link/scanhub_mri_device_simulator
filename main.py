@@ -45,7 +45,7 @@ if __name__ == "__main__":
         # print("%s: %s (%s:%d, %s)" % (
         #     modes[mode], message, context.file, context.line, context.file))
 
-    qInstallMessageHandler(qt_msg_handler)
+    # qInstallMessageHandler(qt_msg_handler)
 
     app = QApplication(sys.argv)
     QFontDatabase.addApplicationFont("resources/fontello.ttf")
@@ -55,5 +55,5 @@ if __name__ == "__main__":
     app.setOrganizationDomain("brain-link.de")
     app.setApplicationName("ScanHub MRI Simulator")
 
-    simApp = SimulationApp()
+    simApp = SimulationApp(app)
     sys.exit(app.exec())
