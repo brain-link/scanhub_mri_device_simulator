@@ -1,106 +1,59 @@
-# https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-python?tabs=environment-variable-windows
-# https://github.com/Azure-Samples/automated-testing-with-azurite
-
-from azure.storage.blob import BlobClient, BlobServiceClient, ContainerClient
+# This Python file uses the following encoding: utf-8
 import os
-import requests
-import uuid
+from pathlib import Path
+import sys
 
-import numpy as np
+import logging.config
+
+from PySide6.QtCore import qInstallMessageHandler
+from PySide6.QtGui import QIcon, QFontDatabase
+from PySide6.QtWidgets import QApplication
+
+from simulation_app import SimulationApp
 
 
-def list_files() -> []:
-    file_list = []
-    
-    for root, dirs, files in os.walk("data"):
-        for name in files:
-            file_list.append({"file_name": name, "local_path": os.path.join(root,name)})
+# Logging setup
+logging.config.fileConfig(fname='logging.conf', disable_existing_loggers=False)
+log = logging.getLogger(__name__)
+if len(sys.argv) > 1:
+    log.setLevel('DEBUG') if sys.argv[1] == '--log' else None
+log.info(f'ScanHub MRI Simulator started')
+log.info(f'Platform: {sys.platform}')
+log.info(f'Python: {sys.version}')
+if sys.version_info >= (3, 8):  # importlib.metadata needs Python 3.8 or newer
+    from importlib.metadata import version
+    log.info(
+        f'Pillow: {version("Pillow")}, '
+        f'PySide6: {version("PySide6")}, '
+        f'numpy: {version("numpy")}, '
+        f'pydicom: {version("pydicom")}')
+else:
+    log.info('Pillow: n/a, PySide6: n/a, numpy: n/a, pydicom: n/a')
 
-    return file_list
 
-def get_filename_from_url(url: str) -> str:
-    file_name=url.split('/')[-1]
-    return file_name
+if __name__ == "__main__":
+    """ Main application entry point
+    """
 
-def get_random_images() -> []:
-    # helper function uses loremflickr.com to get a random list of images 
-    images = []
+    # Handling QML messages and catching Python exceptions
+    def qt_msg_handler(mode, context, message):
+        # https://doc.qt.io/qt-5/qtglobal.html#QtMsgType-enum
+        # modes = ['Debug', 'Warning', 'Critical', 'Fatal', 'Info']
+        py_log_lvl = [10, 30, 50, 0, 20]
+        log.log(py_log_lvl[mode], f'{message}, ({context.file}:{context.line})')
+        # For debugging
+        # print("%s: %s (%s:%d, %s)" % (
+        #     modes[mode], message, context.file, context.line, context.file))
 
-    for i in range(10):
-        resp = requests.get(url=f"https://loremflickr.com/json/320/240?random={i}")
-        resp_json = resp.json()
-        images.append(resp_json["file"])
+    # qInstallMessageHandler(qt_msg_handler)
 
-    return images
+    app = QApplication(sys.argv)
+    QFontDatabase.addApplicationFont("resources/fontello.ttf")
 
-def create_blob_from_url(storage_connection_string,container_name):
-    try:
-        # urls to fetch into blob storage
-        url_list = get_random_images()
+    app.setWindowIcon(QIcon(os.fspath(Path(__file__).resolve().parent / "resources/scanhub.ico")))
+    app.setOrganizationName("ScanHub MRI Simulator")
+    app.setOrganizationDomain("brain-link.de")
+    app.setApplicationName("ScanHub MRI Simulator")
 
-        # Instantiate a new BlobServiceClient and a new ContainerClient
-        # blob_service_client = BlobServiceClient.from_connection_string(storage_connection_string)
-        # container_client = blob_service_client.get_container_client(container_name)
-        container_client = ContainerClient.from_connection_string(storage_connection_string, container_name)
-
-        if not container_client.exists():
-            container_client.create_container()
-        
-        for u in url_list:
-            # Download file from url then upload blob file
-            r = requests.get(u, stream = True)
-            if r.status_code == 200:
-                r.raw.decode_content = True
-                blob_client = container_client.get_blob_client(get_filename_from_url(u))
-                blob_client.upload_blob(r.raw,overwrite=True)
-        return True
-        
-    except Exception as e:
-        print(e.message, e.args)
-        return False
-
-def create_blob_from_path(storage_connection_string,container_name):
-    try:
-        # Instantiate a new BlobServiceClient and a new ContainerClient
-        # blob_service_client = BlobServiceClient.from_connection_string(storage_connection_string)
-        # container_client = blob_service_client.get_container_client(container_name)
-        container_client = ContainerClient.from_connection_string(storage_connection_string, container_name)
-        
-        if not container_client.exists():
-            container_client.create_container()
-        
-        for f in list_files():
-            with open(f["local_path"], "rb") as data:
-                blob_client = container_client.get_blob_client(f["file_name"])
-                blob_client.upload_blob(data,overwrite=True)
-        return True
-
-    except Exception as e:
-        print(e.message, e.args)
-        return False
-
-if __name__ == '__main__':
-
-    print("K-Space")
-    kspacedata = np.load('data/kspace.npy')
-    print(kspacedata.shape)
-    print(kspacedata[0][0])
-
-    # DEBUG
-    os.environ['STORAGE_CONNECTION_STRING'] = 'DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;'
-    os.environ['STORAGE_CONTAINER'] = 'raw-mri' #str(uuid.uuid4()) #'scanhub-container'
-
-    # get storage account settings
-    storage_connection_string = os.environ.get("STORAGE_CONNECTION_STRING")
-    container_name = os.environ.get("STORAGE_CONTAINER")
-
-    # # if you want to copy from a public url
-    # result = create_blob_from_url(storage_connection_string,container_name)
-    
-    # OR if you want to upload form your local drive
-    result = create_blob_from_path(storage_connection_string,container_name)
-
-    if(result):
-        print("Done!")
-    else:
-        print("An error occured!")
+    simApp = SimulationApp(app)
+    sys.exit(app.exec())

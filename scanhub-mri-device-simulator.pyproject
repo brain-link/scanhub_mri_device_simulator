@@ -1,0 +1,20 @@
+{
+    "files": [
+    "main.py",
+    "simulation_app.py",
+    "image_manipulators.py",
+    "image_provider.py",
+    "acquisition_control.py",
+    "README.rst",
+    "LICENSE",
+    "views/view.qml",
+    "views/KSpaceParameterView.qml",
+    "views/shaders/brightnesscontrast.frag",
+    "views/shaders/brightnesscontrast.frag.qsb",
+    "views/shaders/gammaadjust.frag",
+    "views/shaders/gammaadjust.frag.qsb",
+    "logging.conf",
+    "resources/fontello.ttf",
+    "resources/scanhub.ico",
+    "resources/brain-link.ico"]
+}
