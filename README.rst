@@ -5,14 +5,14 @@ scanhub-mri-device-simulator
 
     python main.py --log
 
-Trigger Measurement via Debug Workflow:
+Trigger Measurement via `ScanHub <https://github.com/brain-link/scanhub_new>`_ Debug Workflow:
 
 .. code-block:: bash
 
     http://localhost:81/api/TriggerAcquisition?cmd=MEAS_START
 
 
-development
+Development
 ===========
 
 pip install virtualenv
@@ -23,6 +23,7 @@ python -m virtualenv .env
 
 
 References
+==========
 
 Inspired by the `K-space Explorer <https://github.com/birogeri/kspace-explorer>`_ project.
 

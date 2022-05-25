@@ -133,6 +133,13 @@ class AcquisitionControl(QObject):
     def upload_data_to_blob(self, array: np.ndarray, container_name):
         try:
 
+            tmp_directory_path = os.fspath(Path(__file__).resolve().parent / "tmp")
+
+            # If folder doesn't exist, then create it.
+            if not os.path.isdir(tmp_directory_path):
+                os.makedirs(tmp_directory_path)
+                print("created directory : ", tmp_directory_path)
+
             tmp_file_path = os.fspath(Path(__file__).resolve().parent / "tmp/data.npy")
 
             print("save data to " + tmp_file_path)
