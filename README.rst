@@ -12,16 +12,18 @@ Trigger Measurement via `ScanHub <https://github.com/brain-link/scanhub_new>`_ D
     http://localhost:81/api/TriggerAcquisition?cmd=MEAS_START
 
 
-Development
-===========
+Installation
+============
 
 .. code-block:: bash
 
     pip install virtualenv
+
     python -m virtualenv .env
 
     .\.env\Scripts\activate
 
+    pip install -r requirements.txt
 
 
 References
