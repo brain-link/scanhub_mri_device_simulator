@@ -15,10 +15,12 @@ Trigger Measurement via `ScanHub <https://github.com/brain-link/scanhub_new>`_ D
 Development
 ===========
 
-pip install virtualenv
-python -m virtualenv .env
+.. code-block:: bash
 
-.\.env\Scripts\activate
+    pip install virtualenv
+    python -m virtualenv .env
+
+    .\.env\Scripts\activate
 
 
 
