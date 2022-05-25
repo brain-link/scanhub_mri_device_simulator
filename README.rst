@@ -1,5 +1,5 @@
-scanhub-mri-device-simulator
-============================
+ScanHub MRI Device Simulator
+=========================================================
 
 .. code-block:: bash
 
@@ -13,7 +13,7 @@ Trigger Measurement via `ScanHub <https://github.com/brain-link/scanhub_new>`_ D
 
 
 Installation
-============
+=========================================================
 
 .. code-block:: bash
 
@@ -27,7 +27,12 @@ Installation
 
 
 References
-==========
+=========================================================
 
 Inspired by the `K-space Explorer <https://github.com/birogeri/kspace-explorer>`_ project.
 
+
+Open Points
+=========================================================
+
+- Integrate Bloch Simulator for sequence simulation
