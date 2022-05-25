@@ -19,3 +19,10 @@ pip install virtualenv
 python -m virtualenv .env
 
 .\.env\Scripts\activate
+
+
+
+References
+
+Inspired by the `K-space Explorer <https://github.com/birogeri/kspace-explorer>`_ project.
+
