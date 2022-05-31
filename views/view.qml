@@ -566,7 +566,7 @@ ApplicationWindow {
                 id: button1
                 radius: 50
                 anchors.bottom: parent.bottom
-                anchors.right: parent.right
+                anchors.left: parent.left
                 onClicked: drawer.visible ? drawer.close() : drawer.open()
                 text: "\uF1DE"
                 font.family: "fontello"
