@@ -5,6 +5,10 @@ import QtQuick.Dialogs
 
 
 Item {
+
+    property alias btnSpikeEnabed : btnSpike.enabled
+    property alias btnPatchEnabled : btnPatch.enabled
+
     RowLayout {
         spacing: 0
         id: switches

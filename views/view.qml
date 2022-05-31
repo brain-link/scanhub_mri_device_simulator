@@ -338,26 +338,26 @@ ApplicationWindow {
             states: [
                 State {
                     name: "spike_mode"
-                    PropertyChanges { target: btnSpike; enabled: false }
-                    PropertyChanges { target: btnPatch; enabled: false }
+                    PropertyChanges { target: kspaceParameterTab; btnSpikeEnabled: false }
+                    PropertyChanges { target: kspaceParameterTab; btnPatchEnabled: false }
                     PropertyChanges { target: kspace_mouse; cursorShape: Qt.CrossCursor }
                 },
                 State {
                     name: "patch_mode"
-                    PropertyChanges { target: btnSpike; enabled: false }
-                    PropertyChanges { target: btnPatch; enabled: false }
+                    PropertyChanges { target: kspaceParameterTab; btnSpikeEnabled: false }
+                    PropertyChanges { target: kspaceParameterTab; btnPatchEnabled: false }
                     PropertyChanges { target: kspace_mouse; cursorShape: Qt.CrossCursor }
                 },
                 State {
                     name: "compress_mode"
-                    PropertyChanges { target: btnSpike; enabled: false }
-                    PropertyChanges { target: btnPatch; enabled: false }
+                    PropertyChanges { target: kspaceParameterTab; btnSpikeEnabled: false }
+                    PropertyChanges { target: kspaceParameterTab; btnPatchEnabled: false }
                     PropertyChanges { target: kspace_mouse; cursorShape: Qt.ArrowCursor }
                 },
                 State {
                     name: "normal_mode"
-                    PropertyChanges { target: btnSpike; enabled: true }
-                    PropertyChanges { target: btnPatch; enabled: true }
+                    PropertyChanges { target: kspaceParameterTab; btnSpikeEnabled: true }
+                    PropertyChanges { target: kspaceParameterTab; btnPatchEnabled: true }
                     PropertyChanges { target: kspace_mouse; cursorShape: Qt.ArrowCursor }
                 }
             ]

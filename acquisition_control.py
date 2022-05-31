@@ -23,6 +23,8 @@ from PySide6 import QtGui
 
 from enum import Enum
 
+from azure.core.exceptions import ResourceExistsError
+
 from azure.storage.queue import (
         QueueClient,
         BinaryBase64EncodePolicy,
@@ -188,10 +190,20 @@ class CommandWorkerThread(QObject):
         queue_client_tasks = QueueClient.from_connection_string(self._connect_str, q_name_tasks,
                                 message_encode_policy = BinaryBase64EncodePolicy(),
                                 message_decode_policy = BinaryBase64DecodePolicy())
+        try:
+            queue_client_tasks.create_queue()
+        except ResourceExistsError:
+            # Resource exists
+            pass
+
         queue_client_results = QueueClient.from_connection_string(self._connect_str, q_name_results,
                                 message_encode_policy = BinaryBase64EncodePolicy(),
                                 message_decode_policy = BinaryBase64DecodePolicy())
-        # queue_client_results.create_queue()
+        try:
+            queue_client_results.create_queue()
+        except ResourceExistsError:
+            # Resource exists
+            pass
 
         print('> Start Acquisition Control Worker <')
 
