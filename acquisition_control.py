@@ -62,15 +62,14 @@ class AcquisitionControl(QObject):
     signalStopMeasurement = Signal()
     signalPauseMeasurement = Signal()
 
-    def __init__(self, parent=None):
+    def __init__(self, account_name, account_key, scanhub_id, parent=None):
         super(self.__class__, self).__init__(parent)
 
-        # DEBUG
-        os.environ['STORAGE_CONNECTION_STRING'] = 'DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;'
+        # Set AZURE_STORAGE_CONNECTION_STRING
+        self._connect_str = 'DefaultEndpointsProtocol=http;AccountName=' + account_name + ';AccountKey=' + account_key + ';BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;'
 
-        # Retrieve the connection string from an environment
-        # variable named AZURE_STORAGE_CONNECTION_STRING
-        self._connect_str = os.getenv("STORAGE_CONNECTION_STRING")
+        # Set the ScanHub ID
+        self._scanhub_id = scanhub_id
 
         # Create a new worker thread.
         self.createWorkerThread()
