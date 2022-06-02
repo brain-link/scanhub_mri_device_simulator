@@ -22,10 +22,10 @@ from PySide6.QtCore import Signal, Slot
 from PySide6.QtCore import QObject, QUrl, Qt
 from PySide6.QtWidgets import QMessageBox
 
-from image_manipulators import ImageManipulators
-from image_provider import ImageProvider
+from imagemanipulators import ImageManipulators
+from imageprovider import ImageProvider
 
-from acquisition_control import AcquisitionControl
+from acquisitioncontrol import AcquisitionControl
 
 def qt_msgbox(text='', fatal=False):
     link = 'https://github.com/brain-link/scanhub-mri-device-simulator/issues'

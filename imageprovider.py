@@ -3,7 +3,7 @@
 from PySide6 import QtQuick
 from PySide6.QtGui import QImage, QPixmap, QColor
 
-from image_manipulators import ImageManipulators
+from imagemanipulators import ImageManipulators
 
 class ImageProvider(QtQuick.QQuickImageProvider):
     """

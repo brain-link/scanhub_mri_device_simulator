@@ -9,7 +9,7 @@ from PySide6.QtCore import qInstallMessageHandler
 from PySide6.QtGui import QIcon, QFontDatabase
 from PySide6.QtWidgets import QApplication
 
-from simulation_app import SimulationApp
+from simulationapp import SimulationApp
 
 
 # Logging setup
