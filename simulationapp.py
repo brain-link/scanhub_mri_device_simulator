@@ -98,7 +98,7 @@ class SimulationApp(QQmlApplicationEngine):
     This class handles all interaction with the QML user interface
     """
 
-    _default_image = 'data/default.dcm'
+    _default_image = 'data/ca7cd7de-8639-415a-8556-06634041e4b2.dcm' # 'data/default.dcm'
     _app_path = pathlib.Path(__file__).parent.absolute()
     _default_image = str(_app_path.joinpath(_default_image))
 
