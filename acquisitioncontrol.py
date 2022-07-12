@@ -149,7 +149,7 @@ class AcquisitionControl(QObject):
             # Instantiate a new BlobServiceClient and a new ContainerClient
             # blob_service_client = BlobServiceClient.from_connection_string(storage_connection_string)
             # container_client = blob_service_client.get_container_client(container_name)
-            container_client = ContainerClient.from_connection_string(self._connect_str, container_name)
+            container_client = ContainerClient.from_connection_string(self._connect_str, container_name, api_version="2019-12-12")
             
             if not container_client.exists():
                 container_client.create_container()
