@@ -9,6 +9,11 @@ import uuid
 
 import numpy as np
 
+from kafka import KafkaConsumer
+import json
+
+from AcquisitionEvent import AcquisitionEvent
+
 from PySide6.QtCore import QObject, QThread, Signal, Slot
 from pathlib import Path
 
@@ -181,48 +186,64 @@ class CommandWorkerThread(QObject):
 
     @Slot()
     def startWork(self) -> None:
-        # queue name
-        q_name_tasks = "acquisition-control-queue"
-        q_name_results = "acquistion-control-results-queue"
+        # # queue name
+        # q_name_tasks = "acquisition-control-queue"
+        # q_name_results = "acquistion-control-results-queue"
 
-        # connect to queue
-        queue_client_tasks = QueueClient.from_connection_string(self._connect_str, q_name_tasks,
-                                message_encode_policy = BinaryBase64EncodePolicy(),
-                                message_decode_policy = BinaryBase64DecodePolicy())
-        try:
-            queue_client_tasks.create_queue()
-        except ResourceExistsError:
-            # Resource exists
-            pass
+        # # connect to queue
+        # queue_client_tasks = QueueClient.from_connection_string(self._connect_str, q_name_tasks,
+        #                         message_encode_policy = BinaryBase64EncodePolicy(),
+        #                         message_decode_policy = BinaryBase64DecodePolicy())
+        # try:
+        #     queue_client_tasks.create_queue()
+        # except ResourceExistsError:
+        #     # Resource exists
+        #     pass
 
-        queue_client_results = QueueClient.from_connection_string(self._connect_str, q_name_results,
-                                message_encode_policy = BinaryBase64EncodePolicy(),
-                                message_decode_policy = BinaryBase64DecodePolicy())
-        try:
-            queue_client_results.create_queue()
-        except ResourceExistsError:
-            # Resource exists
-            pass
+        # queue_client_results = QueueClient.from_connection_string(self._connect_str, q_name_results,
+        #                         message_encode_policy = BinaryBase64EncodePolicy(),
+        #                         message_decode_policy = BinaryBase64DecodePolicy())
+        # try:
+        #     queue_client_results.create_queue()
+        # except ResourceExistsError:
+        #     # Resource exists
+        #     pass
 
         print('> Start Acquisition Control Worker <')
 
-        while(True):
-            messages = queue_client_tasks.receive_messages()
 
-            for message in messages:
-                print(message)
-                print("Dequeueing message: " + message.content.decode('UTF-8'))
+        consumer = KafkaConsumer('acquisitionEvent',
+                                value_deserializer=lambda x: json.loads(x.decode('utf-8')), bootstrap_servers=['localhost:9092'])
 
-                if self.parseCommand(message.content.decode('UTF-8')):
-                    print('Commmand found.')
-                    queue_client_tasks.delete_message(message.id, message.pop_receipt)
-                else:
-                    print("Command not found.")
+        for message in consumer:
+            acquisitionEvent = AcquisitionEvent(**(message.value))
+            print("Received: " + acquisitionEvent.instruction)
 
-                print("Adding message: " + message.content.decode('UTF-8'))
-                queue_client_results.send_message(message.content)
+            if self.parseCommand(acquisitionEvent.instruction):
+                print('Commmand found.')
+            else:
+                print("Command not found.")
 
-            time.sleep(1)
+        
+        # while(True):
+
+        # while(True):
+        #     messages = queue_client_tasks.receive_messages()
+
+        #     for message in messages:
+        #         print(message)
+        #         print("Dequeueing message: " + message.content.decode('UTF-8'))
+
+        #         if self.parseCommand(message.content.decode('UTF-8')):
+        #             print('Commmand found.')
+        #             queue_client_tasks.delete_message(message.id, message.pop_receipt)
+        #         else:
+        #             print("Command not found.")
+
+        #         print("Adding message: " + message.content.decode('UTF-8'))
+        #         queue_client_results.send_message(message.content)
+
+        #     time.sleep(1)
         print('> Stop Acquisition Control Worker <')
 
     def parseCommand(self, command: str) -> bool:
