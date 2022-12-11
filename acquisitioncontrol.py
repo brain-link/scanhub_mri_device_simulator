@@ -150,23 +150,12 @@ class AcquisitionControl(QObject):
 
             print("save data to " + tmp_file_path)
             np.save(tmp_file_path, array)
-
-            # Instantiate a new BlobServiceClient and a new ContainerClient
-            # blob_service_client = BlobServiceClient.from_connection_string(storage_connection_string)
-            # container_client = blob_service_client.get_container_client(container_name)
-            container_client = ContainerClient.from_connection_string(self._connect_str, container_name, api_version="2019-12-12")
             
-            if not container_client.exists():
-                container_client.create_container()
-            
-            with open(tmp_file_path, "rb") as data:
-                blob_client = container_client.get_blob_client('kspace.npy')
-                blob_client.upload_blob(data,overwrite=True)
+            file = {'file': open(tmp_file_path,'rb')}
+            url = f"http://localhost:8080/api/v1/devices/mri_simulator/result/{uuid.uuid4()}"
 
-            # for f in list_files():
-            #     with open(f["local_path"], "rb") as data:
-            #         blob_client = container_client.get_blob_client(f["file_name"])
-            #         blob_client.upload_blob(data,overwrite=True)
+            r = requests.post(url, files=file)
+            print(r.json())
             return True
 
         except Exception as e:
@@ -186,34 +175,10 @@ class CommandWorkerThread(QObject):
 
     @Slot()
     def startWork(self) -> None:
-        # # queue name
-        # q_name_tasks = "acquisition-control-queue"
-        # q_name_results = "acquistion-control-results-queue"
-
-        # # connect to queue
-        # queue_client_tasks = QueueClient.from_connection_string(self._connect_str, q_name_tasks,
-        #                         message_encode_policy = BinaryBase64EncodePolicy(),
-        #                         message_decode_policy = BinaryBase64DecodePolicy())
-        # try:
-        #     queue_client_tasks.create_queue()
-        # except ResourceExistsError:
-        #     # Resource exists
-        #     pass
-
-        # queue_client_results = QueueClient.from_connection_string(self._connect_str, q_name_results,
-        #                         message_encode_policy = BinaryBase64EncodePolicy(),
-        #                         message_decode_policy = BinaryBase64DecodePolicy())
-        # try:
-        #     queue_client_results.create_queue()
-        # except ResourceExistsError:
-        #     # Resource exists
-        #     pass
-
         print('> Start Acquisition Control Worker <')
-
-
         consumer = KafkaConsumer('acquisitionEvent',
-                                value_deserializer=lambda x: json.loads(x.decode('utf-8')), bootstrap_servers=['localhost:9092'])
+                                value_deserializer=lambda x: json.loads(x.decode('utf-8')), 
+                                bootstrap_servers=['localhost:9092'])
 
         for message in consumer:
             acquisitionEvent = AcquisitionEvent(**(message.value))
@@ -223,27 +188,6 @@ class CommandWorkerThread(QObject):
                 print('Commmand found.')
             else:
                 print("Command not found.")
-
-        
-        # while(True):
-
-        # while(True):
-        #     messages = queue_client_tasks.receive_messages()
-
-        #     for message in messages:
-        #         print(message)
-        #         print("Dequeueing message: " + message.content.decode('UTF-8'))
-
-        #         if self.parseCommand(message.content.decode('UTF-8')):
-        #             print('Commmand found.')
-        #             queue_client_tasks.delete_message(message.id, message.pop_receipt)
-        #         else:
-        #             print("Command not found.")
-
-        #         print("Adding message: " + message.content.decode('UTF-8'))
-        #         queue_client_results.send_message(message.content)
-
-        #     time.sleep(1)
         print('> Stop Acquisition Control Worker <')
 
     def parseCommand(self, command: str) -> bool:
@@ -302,38 +246,3 @@ if __name__=='__main__':
     gui.show()
 
     sys.exit(app.exec())
-
-#if __name__ == '__main__':
-#    print("AcquisitionControl started")
-
-#    # DEBUG
-#    os.environ['STORAGE_CONNECTION_STRING'] = 'DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;'
-
-#    # Retrieve the connection string from an environment
-#    # variable named AZURE_STORAGE_CONNECTION_STRING
-#    connect_str = os.getenv("STORAGE_CONNECTION_STRING")
-
-#    # queue name
-#    q_name_tasks = "acquisition-control-queue"
-#    q_name_results = "acquistion-control-results-queue"
-
-#    # connect to queue
-#    queue_client_tasks = QueueClient.from_connection_string(connect_str, q_name_tasks,
-#                            message_encode_policy = BinaryBase64EncodePolicy(),
-#                            message_decode_policy = BinaryBase64DecodePolicy())
-#    queue_client_results = QueueClient.from_connection_string(connect_str, q_name_results,
-#                            message_encode_policy = BinaryBase64EncodePolicy(),
-#                            message_decode_policy = BinaryBase64DecodePolicy())
-#    # queue_client_results.create_queue()
-#    while(True):
-#        messages = queue_client_tasks.receive_messages()
-
-#        for message in messages:
-#            print(message)
-#            print("Dequeueing message: " + message.content.decode('UTF-8'))
-#            queue_client_tasks.delete_message(message.id, message.pop_receipt)
-
-#            print("Adding message: " + message.content.decode('UTF-8'))
-#            queue_client_results.send_message(message.content)
-
-#        time.sleep(1)
