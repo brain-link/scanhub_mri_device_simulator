@@ -159,7 +159,7 @@ class AcquisitionControl(QObject):
             return True
 
         except Exception as e:
-            print(e.message, e.args)
+            print(e)
             return False
 
 
