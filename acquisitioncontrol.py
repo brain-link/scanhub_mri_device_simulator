@@ -152,7 +152,7 @@ class AcquisitionControl(QObject):
             np.save(tmp_file_path, array)
             
             file = {'file': open(tmp_file_path,'rb')}
-            url = f"http://localhost:8080/api/v1/devices/mri_simulator/result/{uuid.uuid4()}"
+            url = f"http://localhost:8080/api/v1/workflow/mri_simulator/result/{uuid.uuid4()}"
 
             r = requests.post(url, files=file)
             print(r.json())
