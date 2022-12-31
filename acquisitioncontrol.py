@@ -12,7 +12,7 @@ import numpy as np
 from kafka import KafkaConsumer
 import json
 
-from AcquisitionEvent import AcquisitionEvent
+from scanhub import AcquisitionEvent, AcquisitionCommand
 
 from PySide6.QtCore import QObject, QThread, Signal, Slot
 from pathlib import Path
@@ -41,17 +41,6 @@ from azure.storage.blob import (
     BlobServiceClient, 
     ContainerClient
 )
-
-class AcquisitionCommands(Enum):
-    """A class which contains the commands for the acquisition control.
-
-    The commands are defined as an enum.
-    """
-    # MEASURMENT
-    MEAS_START = 1000
-    MEAS_STOP = 1001
-    MEAS_PAUSE = 1002
-
 
 class AcquisitionControl(QObject):
     """A class which contains methods to communicate with the ScanHub
@@ -117,19 +106,19 @@ class AcquisitionControl(QObject):
             self._command_worker_thread.wait()
 
     @Slot()
-    def processCommand(self, acquisitionCommand: AcquisitionCommands) -> bool:
+    def processCommand(self, acquisition_command: AcquisitionCommand) -> bool:
         print('Process Command')
-        match acquisitionCommand:
-            case AcquisitionCommands.MEAS_START:
-                print(AcquisitionCommands.MEAS_START)
+        match acquisition_command:
+            case AcquisitionCommand.start:
+                print(AcquisitionCommand.start)
                 self.signalStartMeasurement.emit()
                 return True
-            case AcquisitionCommands.MEAS_STOP:
-                print(AcquisitionCommands.MEAS_STOP)
+            case AcquisitionCommand.stop:
+                print(AcquisitionCommand.stop)
                 self.signalStopMeasurement.emit()
                 return True
-            case AcquisitionCommands.MEAS_PAUSE:
-                print(AcquisitionCommands.MEAS_PAUSE)
+            case AcquisitionCommand.pause:
+                print(AcquisitionCommand.pause)
                 self.signalPauseMeasurement.emit()
                 return True
             # default
@@ -167,7 +156,7 @@ class CommandWorkerThread(QObject):
     """A class that implements the acquisiton control worker thread
     """
     signalStatus = Signal(str)
-    signalCommand = Signal(AcquisitionCommands)
+    signalCommand = Signal(AcquisitionCommand)
 
     def __init__(self, connect_str: str, parent=None):
         super(self.__class__, self).__init__(parent)
@@ -181,18 +170,24 @@ class CommandWorkerThread(QObject):
                                 bootstrap_servers=['localhost:9092'])
 
         for message in consumer:
-            acquisitionEvent = AcquisitionEvent(**(message.value))
-            print("Received: " + acquisitionEvent.instruction)
+            try:
+                acquisition_event = AcquisitionEvent(**(message.value))
+                print(f'Received: {acquisition_event}')
 
-            if self.parseCommand(acquisitionEvent.instruction):
-                print('Commmand found.')
-            else:
-                print("Command not found.")
+                if self.parseCommand(acquisition_event.command_id):
+                    print('Commmand found.')
+                else:
+                    print("Command not found.")
+            except Exception as e:
+                print(e)
+                print('Error: Could not parse message.')
+                continue
+
         print('> Stop Acquisition Control Worker <')
 
-    def parseCommand(self, command: str) -> bool:
-        for acquisitionCommand in AcquisitionCommands:
-            if acquisitionCommand.name == command:
+    def parseCommand(self, command: AcquisitionCommand) -> bool:
+        for acquisitionCommand in AcquisitionCommand:
+            if acquisitionCommand == command:
                 self.signalCommand.emit(acquisitionCommand)
                 return True
         return False
