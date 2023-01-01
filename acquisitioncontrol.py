@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- conding: utf-8 -*-
 import sys
-import random
 
-import time, os
+import os
 import requests
-import uuid
+import queue
 
 import numpy as np
 
@@ -24,23 +23,6 @@ from PySide6.QtWidgets import (
         QLabel,
         QVBoxLayout
 )
-from PySide6 import QtGui
-
-from enum import Enum
-
-from azure.core.exceptions import ResourceExistsError
-
-from azure.storage.queue import (
-        QueueClient,
-        BinaryBase64EncodePolicy,
-        BinaryBase64DecodePolicy
-)
-
-from azure.storage.blob import (
-    BlobClient, 
-    BlobServiceClient, 
-    ContainerClient
-)
 
 class AcquisitionControl(QObject):
     """A class which contains methods to communicate with the ScanHub
@@ -55,6 +37,8 @@ class AcquisitionControl(QObject):
     signalStartMeasurement = Signal()
     signalStopMeasurement = Signal()
     signalPauseMeasurement = Signal()
+
+    _acquisition_queue: queue.Queue[AcquisitionEvent] = queue.Queue()
 
     def __init__(self, account_name, account_key, scanhub_id, parent=None):
         super(self.__class__, self).__init__(parent)
@@ -89,15 +73,15 @@ class AcquisitionControl(QObject):
     @Slot()
     def forceWorkerReset(self):      
         if self._command_worker_thread.isRunning():
-            print('Terminating thread.')
+            print(f'Terminating thread.')
             self._command_worker_thread.terminate()
 
-            print('Waiting for thread termination.')
+            print(f'Waiting for thread termination.')
             self._command_worker_thread.wait()
 
             self.signalStatus.emit('Idle.')
 
-            print('building new working object.')
+            print(f'building new working object.')
             self.createWorkerThread()
 
     def forceWorkerQuit(self):
@@ -106,11 +90,12 @@ class AcquisitionControl(QObject):
             self._command_worker_thread.wait()
 
     @Slot()
-    def processCommand(self, acquisition_command: AcquisitionCommand) -> bool:
-        print('Process Command')
-        match acquisition_command:
+    def processCommand(self, acquisition_event: AcquisitionEvent) -> bool:
+        print(f'Process Event')
+        match acquisition_event.command_id:
             case AcquisitionCommand.start:
                 print(AcquisitionCommand.start)
+                self._acquisition_queue.put(acquisition_event)
                 self.signalStartMeasurement.emit()
                 return True
             case AcquisitionCommand.stop:
@@ -133,15 +118,19 @@ class AcquisitionControl(QObject):
             # If folder doesn't exist, then create it.
             if not os.path.isdir(tmp_directory_path):
                 os.makedirs(tmp_directory_path)
-                print("created directory : ", tmp_directory_path)
+                print(f'created directory : {tmp_directory_path}')
 
             tmp_file_path = os.fspath(Path(__file__).resolve().parent / "tmp/data.npy")
 
-            print("save data to " + tmp_file_path)
+            print(f'save data to {tmp_file_path}')
             np.save(tmp_file_path, array)
-            
+
+            acquisition_event_item = self._acquisition_queue.get()
+
             file = {'file': open(tmp_file_path,'rb')}
-            url = f"http://localhost:8080/api/v1/workflow/mri_simulator/result/{uuid.uuid4()}"
+            url = f"http://localhost:8080/api/v1/workflow/{acquisition_event_item.device_id}/result/{acquisition_event_item.record_id}"
+
+            print(f'uploading to {url}')
 
             r = requests.post(url, files=file)
             print(r.json())
@@ -156,7 +145,7 @@ class CommandWorkerThread(QObject):
     """A class that implements the acquisiton control worker thread
     """
     signalStatus = Signal(str)
-    signalCommand = Signal(AcquisitionCommand)
+    signalCommand = Signal(AcquisitionEvent)
 
     def __init__(self, connect_str: str, parent=None):
         super(self.__class__, self).__init__(parent)
@@ -174,21 +163,19 @@ class CommandWorkerThread(QObject):
                 acquisition_event = AcquisitionEvent(**(message.value))
                 print(f'Received: {acquisition_event}')
 
-                if self.parseCommand(acquisition_event.command_id):
-                    print('Commmand found.')
-                else:
-                    print("Command not found.")
+                if not self.parseEvent(acquisition_event):
+                    print('Command not found.')
             except Exception as e:
                 print(e)
-                print('Error: Could not parse message.')
+                print('Error: Could not parse acquisition event.')
                 continue
 
         print('> Stop Acquisition Control Worker <')
 
-    def parseCommand(self, command: AcquisitionCommand) -> bool:
-        for acquisitionCommand in AcquisitionCommand:
-            if acquisitionCommand == command:
-                self.signalCommand.emit(acquisitionCommand)
+    def parseEvent(self, acquisition_event: AcquisitionEvent) -> bool:
+        for acquisition_command in AcquisitionCommand:
+            if acquisition_command == acquisition_event.command_id:
+                self.signalCommand.emit(acquisition_event)
                 return True
         return False
 
