@@ -128,7 +128,7 @@ class AcquisitionControl(QObject):
             acquisition_event_item = self._acquisition_queue.get()
 
             file = {'file': open(tmp_file_path,'rb')}
-            url = f"http://localhost:8080/api/v1/workflow/{acquisition_event_item.device_id}/result/{acquisition_event_item.record_id}"
+            url = f"http://localhost:8080/api/v1/workflow/upload/{acquisition_event_item.record_id}"
 
             print(f'uploading to {url}')
 
