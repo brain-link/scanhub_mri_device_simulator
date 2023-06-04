@@ -172,7 +172,7 @@ ApplicationWindow {
                     context: Qt.ApplicationShortcut
                 }
                 function internalTriggerPlay() {
-                    play_anim.notify_enabled = false
+                    play_anim.notify_enabled = true
                     triggerPlay()
                 }
                 function externalTriggerPlay() {
