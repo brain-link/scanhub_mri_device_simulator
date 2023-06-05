@@ -9,7 +9,7 @@ Trigger Measurement via `ScanHub <https://github.com/brain-link/scanhub_new>`_ D
 
 .. code-block:: bash
 
-    http://localhost:81/api/TriggerAcquisition?cmd=MEAS_START
+    http://localhost:8080/api/v1/mri/acquisitioncontrol/docs
 
 
 Installation
