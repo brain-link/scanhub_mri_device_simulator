@@ -1,5 +1,8 @@
-#!/usr/bin/env python
-# -*- conding: utf-8 -*-
+# Copyright (C) 2023, BRAIN-LINK UG (haftungsbeschränkt). All Rights Reserved.
+# SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-ScanHub-Commercial
+
+"""This module contains the AcquisitionControl class."""
+
 import sys
 
 import os
@@ -8,7 +11,8 @@ import queue
 
 import numpy as np
 
-from kafka import KafkaConsumer
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import threading
 import json
 
 from scanhub import AcquisitionEvent, AcquisitionCommand
@@ -23,6 +27,59 @@ from PySide6.QtWidgets import (
         QLabel,
         QVBoxLayout
 )
+
+
+class RequestHandler(BaseHTTPRequestHandler):
+    def do_POST(self):
+        if self.path == '/api/start-scan':
+
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            payload = json.loads(post_data)
+
+            # Access the payload data
+            record_id = payload['record_id']
+            sequence = payload['sequence']
+
+            acquisition_event = AcquisitionEvent(device_id="Simulator", 
+                                        record_id=record_id, 
+                                        command_id=AcquisitionCommand.start, 
+                                        input_sequence=sequence)
+
+            # Call the start-scan method of the AcquisitionControl instance
+            self.server.acquisition_control.start_simulation(acquisition_event)
+
+            # Send response back to the client
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            response = {'message': 'Simulation started'}
+            self.wfile.write(json.dumps(response).encode())
+        else:
+            # Send 404 error for unknown endpoints
+            self.send_response(404)
+            self.end_headers()
+
+
+class ThreadedHttpServer():
+    def __init__(self, host, port, acquisition_control):
+        self.host = host
+        self.port = port
+        self.acquisition_control = acquisition_control
+
+    def start(self):
+        server_address = (self.host, self.port)
+        self.httpd = HTTPServer(server_address, RequestHandler)
+        RequestHandler.server = self.httpd  # Pass the server instance to the request handler
+        RequestHandler.server.acquisition_control = self.acquisition_control  # Pass the AcquisitionControl instance to the request handler
+        server_thread = threading.Thread(target=self.httpd.serve_forever)
+        server_thread.start()
+
+    def stop(self):
+        if self.httpd:
+            self.httpd.shutdown()
+            self.httpd.server_close()
+
 
 class AcquisitionControl(QObject):
     """A class which contains methods to communicate with the ScanHub
@@ -43,72 +100,62 @@ class AcquisitionControl(QObject):
     def __init__(self, account_name, account_key, scanhub_id, parent=None):
         super(self.__class__, self).__init__(parent)
 
-        # Set AZURE_STORAGE_CONNECTION_STRING
-        self._connect_str = 'DefaultEndpointsProtocol=http;AccountName=' + account_name + ';AccountKey=' + account_key + ';BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;'
+        # Create the threaded http server
+        self._threaded_http_server = ThreadedHttpServer('localhost', 5000, self)
 
         # Set the ScanHub ID
         self._scanhub_id = scanhub_id
 
-        # Create a new worker thread.
-        self.createWorkerThread()
-
         # Make any cross object connections.
         self._connectSignals()
+
+        # Start the HTTP server
+        self._threaded_http_server.start()
+        
+
+    def __del__(self):
+        """ Destructor"""
+        self.forceWorkerQuit()
+
+    def start_simulation(self, acquisition_event: AcquisitionEvent):
+        """Starts the simulation"""
+        print('Starting simulation...')
+        print(acquisition_event)
+
+        self.signalStatus.emit('Starting simulation...')
+        self._acquisition_queue.put(acquisition_event)
+        self.signalStartMeasurement.emit()
+
+        # # Send a start command to ScanHub
+        # self._command_worker.signalCommand.emit(AcquisitionEvent(self._scanhub_id, AcquisitionCommand.start))
 
     def _connectSignals(self):
         self.parent().aboutToQuit.connect(self.forceWorkerQuit)
 
-    def createWorkerThread(self):
-        # Setup the worker object and the worker_thread.
-        self._command_worker = CommandWorkerThread(self._connect_str)
-        self._command_worker_thread = QThread()
-        self._command_worker.moveToThread(self._command_worker_thread)
-        self._command_worker_thread.start()
-
-        # Connect any worker signals
-        self._command_worker.signalStatus.connect(self.signalStatus)
-        self._command_worker.signalCommand.connect(self.processCommand)
-        self.signalStart.connect(self._command_worker.startWork)
-
-    @Slot()
-    def forceWorkerReset(self):      
-        if self._command_worker_thread.isRunning():
-            print(f'Terminating thread.')
-            self._command_worker_thread.terminate()
-
-            print(f'Waiting for thread termination.')
-            self._command_worker_thread.wait()
-
-            self.signalStatus.emit('Idle.')
-
-            print(f'building new working object.')
-            self.createWorkerThread()
-
     def forceWorkerQuit(self):
-        if self._command_worker_thread.isRunning():
-            self._command_worker_thread.terminate()
-            self._command_worker_thread.wait()
+        # Stop the HTTP server when needed
+        self._threaded_http_server.stop()
 
-    @Slot()
-    def processCommand(self, acquisition_event: AcquisitionEvent) -> bool:
-        print(f'Process Event')
-        match acquisition_event.command_id:
-            case AcquisitionCommand.start:
-                print(AcquisitionCommand.start)
-                self._acquisition_queue.put(acquisition_event)
-                self.signalStartMeasurement.emit()
-                return True
-            case AcquisitionCommand.stop:
-                print(AcquisitionCommand.stop)
-                self.signalStopMeasurement.emit()
-                return True
-            case AcquisitionCommand.pause:
-                print(AcquisitionCommand.pause)
-                self.signalPauseMeasurement.emit()
-                return True
-            # default
-            case _:
-                return False
+    # @Slot()
+    # def processCommand(self, acquisition_event: AcquisitionEvent) -> bool:
+    #     print(f'Process Event')
+    #     match acquisition_event.command_id:
+    #         case AcquisitionCommand.start:
+    #             print(AcquisitionCommand.start)
+    #             self._acquisition_queue.put(acquisition_event)
+    #             self.signalStartMeasurement.emit()
+    #             return True
+    #         case AcquisitionCommand.stop:
+    #             print(AcquisitionCommand.stop)
+    #             self.signalStopMeasurement.emit()
+    #             return True
+    #         case AcquisitionCommand.pause:
+    #             print(AcquisitionCommand.pause)
+    #             self.signalPauseMeasurement.emit()
+    #             return True
+    #         # default
+    #         case _:
+    #             return False
 
     def upload_data_to_blob(self, array: np.ndarray, container_name):
         try:
@@ -145,46 +192,6 @@ class AcquisitionControl(QObject):
         except Exception as e:
             print(e)
             return False
-
-
-class CommandWorkerThread(QObject):
-    """A class that implements the acquisiton control worker thread
-    """
-    signalStatus = Signal(str)
-    signalCommand = Signal(AcquisitionEvent)
-
-    def __init__(self, connect_str: str, parent=None):
-        super(self.__class__, self).__init__(parent)
-        self._connect_str = connect_str
-
-    @Slot()
-    def startWork(self) -> None:
-        print('> Start Acquisition Control Worker <')
-        consumer = KafkaConsumer('acquisitionEvent',
-                                value_deserializer=lambda x: json.loads(x.decode('utf-8')), 
-                                bootstrap_servers=['localhost:9092'])
-
-        for message in consumer:
-            try:
-                acquisition_event = AcquisitionEvent(**(message.value))
-                print(f'Received: {acquisition_event}')
-
-                if not self.parseEvent(acquisition_event):
-                    print('Command not found.')
-            except Exception as e:
-                print(e)
-                print('Error: Could not parse acquisition event.')
-                continue
-
-        print('> Stop Acquisition Control Worker <')
-
-    def parseEvent(self, acquisition_event: AcquisitionEvent) -> bool:
-        for acquisition_command in AcquisitionCommand:
-            if acquisition_command == acquisition_event.command_id:
-                self.signalCommand.emit(acquisition_event)
-                return True
-        return False
-
 
 
 #DEBUG CODE STARTING HERE

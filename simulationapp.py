@@ -1,5 +1,8 @@
-#!/usr/bin/env python
-# -*- conding: utf-8 -*-
+# Copyright (C) 2023, BRAIN-LINK UG (haftungsbeschränkt). All Rights Reserved.
+# SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-ScanHub-Commercial
+
+"""This module contains the SimulationApp class."""
+
 import os
 import pathlib
 import sys
@@ -115,7 +118,8 @@ class SimulationApp(QQmlApplicationEngine):
                                                        account_key='Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==',
                                                        scanhub_id='#007',
                                                        parent=parent)
-        
+
+
         self._im = ImageManipulators(open_file(self._default_image), is_image=True)
 
         # Image manipulator and storage initialisation with default image

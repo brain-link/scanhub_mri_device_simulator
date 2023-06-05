@@ -1,4 +1,8 @@
-# This Python file uses the following encoding: utf-8
+# Copyright (C) 2023, BRAIN-LINK UG (haftungsbeschränkt). All Rights Reserved.
+# SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-ScanHub-Commercial
+
+"""This module contains the main application entry point."""
+
 import os
 from pathlib import Path
 import sys

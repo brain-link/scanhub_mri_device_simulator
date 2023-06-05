@@ -1,5 +1,8 @@
-#!/usr/bin/env python
-# -*- conding: utf-8 -*-
+# Copyright (C) 2023, BRAIN-LINK UG (haftungsbeschränkt). All Rights Reserved.
+# SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-ScanHub-Commercial
+
+"""This module contains the ImageProvider class."""
+
 from PySide6 import QtQuick
 from PySide6.QtGui import QImage, QPixmap, QColor
 
