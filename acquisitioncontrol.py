@@ -126,9 +126,6 @@ class AcquisitionControl(QObject):
         self._acquisition_queue.put(acquisition_event)
         self.signalStartMeasurement.emit()
 
-        # # Send a start command to ScanHub
-        # self._command_worker.signalCommand.emit(AcquisitionEvent(self._scanhub_id, AcquisitionCommand.start))
-
     def _connectSignals(self):
         self.parent().aboutToQuit.connect(self.forceWorkerQuit)
 
@@ -172,16 +169,12 @@ class AcquisitionControl(QObject):
             print(f'save data to {tmp_file_path}')
             np.save(tmp_file_path, array)
 
-            # acquisition_event_item = self._acquisition_queue.get()
+            acquisition_event = self._acquisition_queue.get()
 
-            # file = {'file': open(tmp_file_path,'rb')}
-            # url = f"http://localhost:8080/api/v1/workflow/upload/{acquisition_event_item.record_id}"
-
-            record_id = 'test'
+            print(f'finished acquisition_event : {acquisition_event}')
 
             file = {'file': open(tmp_file_path,'rb')}
-            url = f"http://localhost:8080/api/v1/workflow/upload/{record_id}"
-
+            url = f"http://localhost:8080/api/v1/workflow/upload/{acquisition_event.record_id}"
 
             print(f'uploading to {url}')
 
