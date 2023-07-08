@@ -50,11 +50,14 @@ jobs:
           key: pydeps-${{ hashFiles('**/poetry.lock') }}
 
       - name: Check cached dependencies
+        working-directory: ${{ github.workspace }}
         run: poetry install --no-interaction --with lint --no-root
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
 
       - name: Poetry install
+        working-directory: ${{ github.workspace }}
         run: poetry install --no-interaction --with lint
 
       - name: Run linter
+        working-directory: ${{ github.workspace }}
         run: poetry run poe lint
