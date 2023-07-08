@@ -4,7 +4,6 @@ version = "0.0.1"
 description = "ScanHub MRI Device Simulator is a Python package for simulating MRI devices. It is part of the ScanHub project."
 authors = ["Christoph Dinh <christoph.dinh@brain-link.de>"]
 readme = "README.md"
-packages = [{include = "scanhub_mri_device_simulator"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
