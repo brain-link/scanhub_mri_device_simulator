@@ -9,8 +9,11 @@ on:
       - '*'
 
 jobs:
-
   Linting:
+    defaults:
+      run:
+        working-directory: ..
+    
     name: 'Linting service'
 
     runs-on: ubuntu-latest
