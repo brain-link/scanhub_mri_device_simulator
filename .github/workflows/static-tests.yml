@@ -14,8 +14,6 @@ jobs:
     name: 'Linting service'
 
     runs-on: ubuntu-latest
-    env:
-      working-directory: ./services
 
     strategy:
       matrix:
