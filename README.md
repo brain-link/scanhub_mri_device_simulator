@@ -1,6 +1,12 @@
 ScanHub MRI Device Simulator
 ----------------------------
 
+<p align="center">
+<a href="https://github.com/brain-link/scanhub-mri-device-simulator/actions/workflows/static-tests.yml" target="_blank">
+    <img src="https://github.com/brain-link/scanhub-mri-device-simulator/actions/workflows/static-tests.yml/badge.svg" alt="Static Tests"/>
+</a>
+</p>
+
 ScanHub MRI Device Simulator is a Python package for simulating MRI devices. It is part of the ScanHub project.
 
 .. code-block:: bash
