@@ -1,5 +1,7 @@
 ScanHub MRI Device Simulator
-=========================================================
+----------------------------
+
+ScanHub MRI Device Simulator is a Python package for simulating MRI devices. It is part of the ScanHub project.
 
 .. code-block:: bash
 
@@ -13,7 +15,7 @@ Trigger Measurement via `ScanHub <https://github.com/brain-link/scanhub_new>`_ D
 
 
 Installation
-=========================================================
+------------
 
 .. code-block:: bash
 
@@ -23,16 +25,16 @@ Installation
 
     .\.env\Scripts\activate
 
-    pip install -r requirements.txt
+    poetry install
 
 
 References
-=========================================================
+----------
 
 Inspired by the `K-space Explorer <https://github.com/birogeri/kspace-explorer>`_ project.
 
 
 Open Points
-=========================================================
+-----------
 
 - Integrate Bloch Simulator for sequence simulation

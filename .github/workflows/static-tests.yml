@@ -1,0 +1,62 @@
+name: 'Static Tests'
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+
+  Linting:
+    name: 'Linting service'
+
+    runs-on: ubuntu-latest
+    env:
+      working-directory: ./services
+
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+
+    continue-on-error: True
+
+    steps:
+
+      - uses: actions/checkout@v3
+
+      - name: Set up python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache poetry install
+        uses: actions/cache@v2
+        with:
+          path: ~/.local
+          key: poetry
+
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Cache poetry dependencies
+        uses: actions/cache@v2
+        id: cached-poetry-dependencies
+        with:
+          path: .venv
+          key: pydeps-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Check cached dependencies
+        run: poetry install --no-interaction --with lint --no-root
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+
+      - name: Poetry install
+        run: poetry install --no-interaction --with lint
+
+      - name: Run linter
+        run: poetry run poe lint
