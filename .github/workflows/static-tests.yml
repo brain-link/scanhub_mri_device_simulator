@@ -10,10 +10,6 @@ on:
 
 jobs:
   Linting:
-    defaults:
-      run:
-        working-directory: ..
-    
     name: 'Linting service'
 
     runs-on: ubuntu-latest
@@ -57,6 +53,7 @@ jobs:
             ${{ runner.os }}-pydeps-${{ matrix.python-version }}-
 
       - name: Install dependencies if cache was not hit
+        working-directory: ..
         run: poetry install --no-interaction
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
 
