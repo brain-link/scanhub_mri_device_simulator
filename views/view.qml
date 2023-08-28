@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 import QtQuick.Dialogs
+import QtWebSockets
 
 ApplicationWindow {
     id: window
@@ -13,6 +14,33 @@ ApplicationWindow {
     readonly property bool narrowWindow: window.width < 400
     title: qsTr("ScanHub MRI Simulator")
     //: Application title bar text
+
+    function listProperty(item)
+    {
+        for (var p in item)
+        console.log(p + ": " + item[p]);
+    }
+
+    WebSocket {
+        id: websocket
+        url: "ws://localhost:8002/api/v1/device/ws"
+        active: true
+        onTextMessageReceived: function(message) {
+            var messageJson = JSON.parse(message)
+            if ("message" in messageJson)
+            {
+                cloudConnectionTab.children[0].children[10].children[0].children[0].text = messageJson["message"]
+            }
+            else if ("command" in messageJson)
+            {
+                cloudConnectionTab.children[0].children[10].children[0].children[0].text = "received command: " + messageJson["command"]
+            }
+            else
+            {
+                cloudConnectionTab.children[0].children[10].children[0].children[0].text = "received unknown messagetype"
+            }
+        }
+    }
 
     Shortcut {
         sequence: StandardKey.FullScreen
@@ -267,7 +295,7 @@ ApplicationWindow {
                 id: kspaceParameterTab
             }
 
-            Item {
+            ConnectionView {
                 id: cloudConnectionTab
 
             }

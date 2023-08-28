@@ -12,6 +12,7 @@ import logging.config
 from PySide6.QtCore import qInstallMessageHandler
 from PySide6.QtGui import QIcon, QFontDatabase
 from PySide6.QtWidgets import QApplication
+import PySide6.QtWebSockets
 
 from simulationapp import SimulationApp
 
