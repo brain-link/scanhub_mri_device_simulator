@@ -16,41 +16,77 @@ Item {
     anchors.rightMargin: 20
     anchors.bottom: parent.bottom
     anchors.top: parent.top
-    TextField {
-        id: uuid
-        Layout.fillWidth: true
-        text: "123456789"
+    RowLayout {
+        Label {
+            text: "uuid"
+        }
+        TextField {
+            id: uuid
+            Layout.fillWidth: true
+            text: "123456789"
+        }
     }
-    TextField {
-        id: ipaddress
-        Layout.fillWidth: true
-        text: "localhost"
+    RowLayout {
+        Label {
+            text: "ip:port"
+        }
+        TextField {
+            id: ipaddress
+            Layout.fillWidth: true
+            text: "localhost:xxxx"
+        }
     }
-    TextField {
-        id: name
-        Layout.fillWidth: true
-        text: "simulator"
+    RowLayout {
+        Label {
+            text: "name"
+        }
+        TextField {
+            id: name
+            Layout.fillWidth: true
+            text: "simulator"
+        }
     }
-    TextField {
-        id: manufacturer
-        Layout.fillWidth: true
-        text: "brain-link UG (haftungsbeschränkt)"
+    RowLayout {
+        Label {
+            text: "manufacturer"
+        }
+        TextField {
+            id: manufacturer
+            Layout.fillWidth: true
+            text: "brain-link UG (haftungsbeschränkt)"
+        }
     }
-    TextField {
-        id: modality
-        Layout.fillWidth: true
-        text: "usb"
+    RowLayout {
+        Label {
+            text: "modality"
+        }
+        TextField {
+            id: modality
+            Layout.fillWidth: true
+            text: "MRI"
+        }
     }
-    TextField {
-        id: status
-        Layout.fillWidth: true
-        text: "new"
+    RowLayout {
+        Label {
+            text: "status"
+        }
+        TextField {
+            id: status
+            Layout.fillWidth: true
+            text: "new"
+        }
     }
-    TextField {
-        id: site
-        Layout.fillWidth: true
-        text: "Herzogenaurach"
+    RowLayout {
+        Label {
+            text: "site"
+        }
+        TextField {
+            id: site
+            Layout.fillWidth: true
+            text: "Hamburg"
+        }
     }
+
     RowLayout {
         Button {
             text: "Register device"
