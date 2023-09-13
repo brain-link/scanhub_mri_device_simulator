@@ -33,7 +33,7 @@ Item {
         TextField {
             id: ipaddress
             Layout.fillWidth: true
-            text: "localhost:xxxx"
+            text: "host.docker.internal:5000"
         }
     }
     RowLayout {
