@@ -1,7 +1,7 @@
 # Copyright (C) 2023, BRAIN-LINK UG (haftungsbeschränkt). All Rights Reserved.
 # SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-ScanHub-Commercial
 
-"""This module contains the AcquisitionControl class."""
+"""Contains the definition of the AcquisitionControl and the ThreadedHttpServer class."""
 
 import json
 import os
@@ -20,7 +20,10 @@ from scanhub import AcquisitionCommand, AcquisitionEvent
 
 
 class RequestHandler(BaseHTTPRequestHandler):
+    """A class which handles the HTTP requests."""
+
     def do_POST(self):
+        """Handle the POST requests."""
         if self.path == "/api/start-scan":
             content_length = int(self.headers["Content-Length"])
             post_data = self.rfile.read(content_length)
@@ -53,12 +56,16 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 
 class ThreadedHttpServer:
+    """A class which creates a threaded HTTP server."""
+
     def __init__(self, host, port, acquisition_control):
+        """Initialize the ThreadedHttpServer class."""
         self.host = host
         self.port = port
         self.acquisition_control = acquisition_control
 
     def start(self):
+        """Start the HTTP server."""
         server_address = (self.host, self.port)
         self.httpd = HTTPServer(server_address, RequestHandler)
         RequestHandler.server = (
@@ -70,13 +77,14 @@ class ThreadedHttpServer:
         server_thread.start()
 
     def stop(self):
+        """Stop the HTTP server."""
         if self.httpd:
             self.httpd.shutdown()
             self.httpd.server_close()
 
 
 class AcquisitionControl(QObject):
-    """A class which contains methods to communicate with the ScanHub
+    """A class which contains methods to communicate with the ScanHub.
 
     This class will establish a connection to ScanHub and receive/send commands
     """
@@ -107,11 +115,11 @@ class AcquisitionControl(QObject):
         self._threaded_http_server.start()
 
     def __del__(self):
-        """Destructor"""
+        """Destructor of the class."""
         self.forceWorkerQuit()
 
     def start_simulation(self, acquisition_event: AcquisitionEvent):
-        """Starts the simulation"""
+        """Start the simulation."""
         print("Starting simulation...")
         print(acquisition_event)
 
@@ -120,9 +128,11 @@ class AcquisitionControl(QObject):
         self.signalStartMeasurement.emit()
 
     def _connectSignals(self):
+        """Connect signals and slots."""
         self.parent().aboutToQuit.connect(self.forceWorkerQuit)
 
     def forceWorkerQuit(self):
+        """Force the worker to quit."""
         # Stop the HTTP server when needed
         self._threaded_http_server.stop()
 
@@ -148,6 +158,7 @@ class AcquisitionControl(QObject):
     #             return False
 
     def upload_data_to_blob(self, array: np.ndarray, container_name):
+        """Upload the data to the blob storage."""
         try:
             tmp_directory_path = os.fspath(Path(__file__).resolve().parent / "tmp")
 
@@ -181,6 +192,8 @@ class AcquisitionControl(QObject):
 
 # DEBUG CODE STARTING HERE
 class Window(QWidget):
+    """A class which contains a simple debug GUI."""
+
     def __init__(self):
         QWidget.__init__(self)
         self.button_start = QPushButton("Start", self)
@@ -196,18 +209,22 @@ class Window(QWidget):
 
     @Slot(str)
     def updateStatus(self, status):
+        """Update the status label."""
         self.label_status.setText(status)
 
     @Slot(str)
     def startMeasurement(self):
+        """Update the status label."""
         self.label_status.setText("Start Measurement")
 
     @Slot(str)
     def stopMeasurement(self):
+        """Update the status label."""
         self.label_status.setText("Stop Measurement")
 
     @Slot(str)
     def pauseMeasurement(self):
+        """Update the status label."""
         self.label_status.setText("Pause Measurement")
 
 
