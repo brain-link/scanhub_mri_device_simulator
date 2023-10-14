@@ -3,9 +3,6 @@
 
 """This module contains the ImageManipulators class."""
 
-import os
-import pathlib
-import sys
 import numpy as np
 
 # Attempting to use mkl_fft (faster FFT library for Intel CPUs). Fallback is np
@@ -20,6 +17,7 @@ except (ModuleNotFoundError, ImportError):
 finally:
     fftshift = np.fft.fftshift
     ifftshift = np.fft.ifftshift
+
 
 class ImageManipulators:
     """A class that contains a 2D image and kspace pair and modifier methods
@@ -44,7 +42,7 @@ class ImageManipulators:
             self.kspacedata = pixel_data.copy()
             self.img = np.zeros_like(self.kspacedata, dtype=np.float32)
 
-        self.image_display_data = np.require(self.img, np.uint8, 'C')
+        self.image_display_data = np.require(self.img, np.uint8, "C")
         self.kspace_display_data = np.zeros_like(self.image_display_data)
         self.orig_kspacedata = np.zeros_like(self.kspacedata)
         self.kspace_abs = np.zeros_like(self.kspacedata, dtype=np.float32)
@@ -78,7 +76,7 @@ class ImageManipulators:
 
     @staticmethod
     def np_fft(img: np.ndarray, out: np.ndarray):
-        """ Performs FFT function (image to kspace)
+        """Performs FFT function (image to kspace)
 
         Performs FFT function, FFT shift and stores the unmodified kspace data
         in a variable and also saves one copy for display and edit purposes.
@@ -91,7 +89,7 @@ class ImageManipulators:
 
     @staticmethod
     def normalise(f: np.ndarray):
-        """ Normalises array by "streching" all values to be between 0-255.
+        """Normalises array by "streching" all values to be between 0-255.
 
         Parameters:
             f (np.ndarray): input array
@@ -100,11 +98,11 @@ class ImageManipulators:
         fmax = float(np.max(f))
         if fmax != fmin:
             coeff = fmax - fmin
-            f[:] = np.floor((f[:] - fmin) / coeff * 255.)
+            f[:] = np.floor((f[:] - fmin) / coeff * 255.0)
 
     @staticmethod
     def apply_window(f: np.ndarray, window_val: dict = None):
-        """ Applies window values to the array
+        """Applies window values to the array
 
         Excludes certain values based on window width and center before
         applying normalisation on array f.
@@ -127,15 +125,18 @@ class ImageManipulators:
         fmax = np.max(f)
         fmin = np.min(f)
         if fmax != fmin:
-            ww = (window_val['ww'] * fmax) if window_val else fmax
-            wc = (window_val['wc'] * fmax) if window_val else (ww / 2)
+            ww = (window_val["ww"] * fmax) if window_val else fmax
+            wc = (window_val["wc"] * fmax) if window_val else (ww / 2)
             w_low = wc - ww / 2
             w_high = wc + ww / 2
-            f[:] = np.piecewise(f, [f <= w_low, f > w_high], [0, 255,
-                                lambda x: ((x - wc) / ww + 0.5) * 255])
+            f[:] = np.piecewise(
+                f,
+                [f <= w_low, f > w_high],
+                [0, 255, lambda x: ((x - wc) / ww + 0.5) * 255],
+            )
 
     def prepare_displays(self, kscale: int = -3, lut: dict = None):
-        """ Prepares kspace and image for display in the user interface
+        """Prepares kspace and image for display in the user interface
 
         Magnitude of the kspace is taken and scaling is applied for display
         purposes. This scaled representation is then transformed to a 256 color
@@ -157,7 +158,7 @@ class ImageManipulators:
         # K-space scaling: https://homepages.inf.ed.ac.uk/rbf/HIPR2/pixlog.htm
         np.absolute(self.kspacedata, out=self.kspace_abs)
         if np.any(self.kspace_abs):
-            scaling_c = np.power(10., kscale)
+            scaling_c = np.power(10.0, kscale)
             np.log1p(self.kspace_abs * scaling_c, out=self.kspace_abs)
             self.normalise(self.kspace_abs)
 
@@ -166,7 +167,7 @@ class ImageManipulators:
         self.kspace_display_data[:] = np.require(self.kspace_abs, np.uint8)
 
     def resize_arrays(self, size: (int, int)):
-        """ Resize arrays for image size changes (e.g. remove kspace lines etc.)
+        """Resize arrays for image size changes (e.g. remove kspace lines etc.)
 
         Called by undersampling kspace and the image_change method. If the FOV
         is modified, image_change will reset the size based on the original
@@ -221,7 +222,7 @@ class ImageManipulators:
             r = np.hypot(*kspace.shape) / 2 * radius / 100
             rows, cols = np.array(kspace.shape, dtype=int)
             a, b = np.floor(np.array((rows, cols)) / 2).astype(int)
-            y, x = np.ogrid[-a:rows - a, -b:cols - b]
+            y, x = np.ogrid[-a: rows - a, -b: cols - b]
             mask = x * x + y * y <= r * r
             kspace[mask] = 0
 
@@ -243,13 +244,17 @@ class ImageManipulators:
             r = np.hypot(*kspace.shape) / 2 * radius / 100
             rows, cols = np.array(kspace.shape, dtype=int)
             a, b = np.floor(np.array((rows, cols)) / 2).astype(int)
-            y, x = np.ogrid[-a:rows - a, -b:cols - b]
+            y, x = np.ogrid[-a: rows - a, -b: cols - b]
             mask = x * x + y * y <= r * r
             kspace[~mask] = 0
 
     @staticmethod
-    def add_noise(kspace: np.ndarray, signal_to_noise: float,
-                  current_noise: np.ndarray, generate_new_noise=False):
+    def add_noise(
+        kspace: np.ndarray,
+        signal_to_noise: float,
+        current_noise: np.ndarray,
+        generate_new_noise=False,
+    ):
         """Adds random Guassian white noise to k-space
 
         Adds noise to the image to simulate an image with the given
@@ -272,7 +277,7 @@ class ImageManipulators:
 
     @staticmethod
     def partial_fourier(kspace: np.ndarray, percentage: float, zf: bool):
-        """ Partial Fourier
+        """Partial Fourier
 
         Also known as half scan - only acquire a little over half of k-space
         or more and use conjugate symmetry to fill the rest.
@@ -307,15 +312,16 @@ class ImageManipulators:
                 #       columns or rows is even) roll lines to realign the
                 #       highest amplitude parts
                 # 3. Do the same vertically
-                kspace[-rows_to_skip:] = \
-                    np.roll(kspace[::-1, ::-1], s, axis=(0, 1))[-rows_to_skip:]
+                kspace[-rows_to_skip:] = np.roll(kspace[::-1, ::-1], s, axis=(0, 1))[
+                    -rows_to_skip:
+                ]
 
                 # Conjugate replaced lines
                 np.conj(kspace[-rows_to_skip:], kspace[-rows_to_skip:])
 
     @staticmethod
     def hamming(kspace: np.ndarray):
-        """ Hamming filter
+        """Hamming filter
 
         Applies a 2D Hamming filter to reduce Gibbs ringing
         References:
@@ -331,7 +337,7 @@ class ImageManipulators:
         kspace *= window
 
     def undersample(self, kspace: np.ndarray, factor: int, compress: bool):
-        """ Skipping every nth kspace line
+        """Skipping every nth kspace line
 
         Simulates acquiring every nth (where n is the acceleration factor) line
         of kspace, starting from the midline. Commonly used in SENSE algorithm.
@@ -386,17 +392,16 @@ class ImageManipulators:
     def apply_patches(kspace, patches: list):
         """Applies patches to kspace
 
-         Apply patches (zero value squares) to the kspace data at the
-         specified coordinates and size.
+        Apply patches (zero value squares) to the kspace data at the
+        specified coordinates and size.
 
-         Parameters:
-             kspace (np.ndarray): Complex kspace ndarray
-             patches (list): coordinates for the spikes (row, column, radius)
-         """
+        Parameters:
+            kspace (np.ndarray): Complex kspace ndarray
+            patches (list): coordinates for the spikes (row, column, radius)
+        """
         for patch in patches:
             x, y, size = patch[0], patch[1], patch[2]
-            kspace[max(x - size, 0):x + size + 1,
-                   max(y - size, 0):y + size + 1] = 0
+            kspace[max(x - size, 0): x + size + 1, max(y - size, 0): y + size + 1] = 0
 
     @staticmethod
     def filling(kspace: np.ndarray, value: float, mode: int):
@@ -434,7 +439,7 @@ class ImageManipulators:
 
     @staticmethod
     def filling_centric(kspace: np.ndarray, value: float):
-        """ Centric filling method
+        """Centric filling method
 
         Fills the center line first from left to right and then alternating one
         line above and one below.
@@ -443,12 +448,12 @@ class ImageManipulators:
 
         # reorder
         ksp_centric[0::2] = kspace[kspace.shape[0] // 2::]
-        ksp_centric[1::2] = kspace[kspace.shape[0] // 2 - 1::-1]
+        ksp_centric[1::2] = kspace[kspace.shape[0] // 2 - 1:: -1]
 
         ksp_centric.flat[int(kspace.size * value / 100)::] = 0
 
         # original order
-        kspace[(kspace.shape[0]) // 2 - 1::-1] = ksp_centric[1::2]
+        kspace[(kspace.shape[0]) // 2 - 1:: -1] = ksp_centric[1::2]
         kspace[(kspace.shape[0]) // 2::] = ksp_centric[0::2]
 
     @staticmethod

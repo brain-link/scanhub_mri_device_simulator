@@ -3,38 +3,37 @@
 
 """This module contains the SimulationApp class."""
 
+import logging
 import os
 import pathlib
 import sys
+
 import numpy as np
 
-import logging
-log = logging.getLogger(__name__)
 import logging.config
-
 from uuid import uuid4
 
 import PIL
-from PIL import Image
 import pydicom
+from PIL import Image
 from pydicom import errors
-
 from PySide6 import QtQuick
+from PySide6.QtCore import QObject, Qt, Slot
 from PySide6.QtQml import QQmlApplicationEngine
-from PySide6.QtCore import Signal, Slot
-from PySide6.QtCore import QObject, QUrl, Qt
 from PySide6.QtWidgets import QMessageBox
 
+from acquisitioncontrol import AcquisitionControl
 from imagemanipulators import ImageManipulators
 from imageprovider import ImageProvider
 
-from acquisitioncontrol import AcquisitionControl
+log = logging.getLogger(__name__)
 
-def qt_msgbox(text='', fatal=False):
-    link = 'https://github.com/brain-link/scanhub-mri-device-simulator/issues'
-    suffix = '\n\nA log file has been created.'
+
+def qt_msgbox(text="", fatal=False):
+    link = "https://github.com/brain-link/scanhub-mri-device-simulator/issues"
+    suffix = "\n\nA log file has been created."
     if fatal:
-        suffix += '\nScanHub MRI Simulator will quit.'
+        suffix += "\nScanHub MRI Simulator will quit."
     error_text = f"Error - Get help on <a href='{link}'>GitHub</a>"
 
     msg = QMessageBox()
@@ -66,19 +65,19 @@ def open_file(path: str, dtype: np.dtype = np.float32) -> np.ndarray:
     """
 
     try:
-        log.info(f'Opening file: {path}')
+        log.info(f"Opening file: {path}")
         with Image.open(path) as f:
-            img_file = f.convert('F')  # 'F' mode: 32-bit floating point pixels
+            img_file = f.convert("F")  # 'F' mode: 32-bit floating point pixels
             img_pixel_array = np.array(img_file).astype(dtype)
 
         log.info(f"Image loaded. Image size: {img_pixel_array.shape}")
         return img_pixel_array
     except FileNotFoundError:
         log.error("File not found", exc_info=True)
-        if 'im' not in globals():   # Quit gracefully if first start fails
+        if "im" not in globals():  # Quit gracefully if first start fails
             qt_msgbox(f"File not found. ({path}).", fatal=True)
     except PIL.UnidentifiedImageError:
-        log.info(f'Filetype is not recognised by PIL. Trying pydicom.')
+        log.info("Filetype is not recognised by PIL. Trying pydicom.")
         try:
             with pydicom.dcmread(path) as dcm_file:
                 img_pixel_array = dcm_file.pixel_array.astype(dtype)
@@ -86,7 +85,7 @@ def open_file(path: str, dtype: np.dtype = np.float32) -> np.ndarray:
             log.info(f"DICOM loaded. Image size: {img_pixel_array.shape}")
             return img_pixel_array
         except errors.InvalidDicomError:
-            log.info(f'Cannot open with pydicom. Trying to open as raw data.')
+            log.info("Cannot open with pydicom. Trying to open as raw data.")
             try:
                 raw_data = np.load(path)
                 log.info(f"Raw data loaded. Data size: {raw_data.shape}")
@@ -97,11 +96,11 @@ def open_file(path: str, dtype: np.dtype = np.float32) -> np.ndarray:
 
 
 class SimulationApp(QQmlApplicationEngine):
-    """ Simulation App
+    """Simulation App
     This class handles all interaction with the QML user interface
     """
 
-    _default_image = 'data/default.dcm' # 'data/ca7cd7de-8639-415a-8556-06634041e4b2.dcm' # 'data/default.dcm'
+    _default_image = "data/default.dcm"  # 'data/ca7cd7de-8639-415a-8556-06634041e4b2.dcm' # 'data/default.dcm'
     _app_path = pathlib.Path(__file__).parent.absolute()
     _default_image = str(_app_path.joinpath(_default_image))
 
@@ -110,15 +109,19 @@ class SimulationApp(QQmlApplicationEngine):
         super(SimulationApp, self).__init__(parent)
 
         # DEBUG
-        #os.environ['STORAGE_CONNECTION_STRING'] = 'DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;'
-
+        # os.environ['STORAGE_CONNECTION_STRING'] = 'DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;
+        # AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;
+        # BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;
+        # QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;
+        # TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;'
 
         # Initialise member variables
-        self._acquisition_control = AcquisitionControl(account_name='devstoreaccount1',
-                                                       account_key='Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==',
-                                                       scanhub_id='#007',
-                                                       parent=parent)
-
+        self._acquisition_control = AcquisitionControl(
+            account_name="devstoreaccount1",
+            account_key="Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==",
+            scanhub_id="#007",
+            parent=parent,
+        )
 
         self._im = ImageManipulators(open_file(self._default_image), is_image=True)
 
@@ -141,9 +144,8 @@ class SimulationApp(QQmlApplicationEngine):
 
         self.ctx.setContextProperty("py_SimulationApp", self)
 
-
-        #self.win = parent
-        #self.ctx = context
+        # self.win = parent
+        # self.ctx = context
 
         def bind(object_name: str) -> QtQuick.QQuickItem:
             """Finds the QML Object with the object name
@@ -157,18 +159,36 @@ class SimulationApp(QQmlApplicationEngine):
             return self.win.findChild(QObject, object_name)
 
         # List of QML control objectNames that we will bind to
-        ctrls = ["image_display", "kspace_display", "noise_slider", "compress",
-                 "decrease_dc", "partial_fourier_slider", "undersample_kspace",
-                 "high_pass_slider", "low_pass_slider", "ksp_const", "filling",
-                 "hamming", "rdc_slider", "zero_fill", "compress", "droparea",
-                 "filling_mode", "thumbnails", "play_btn"]
+        ctrls = [
+            "image_display",
+            "kspace_display",
+            "noise_slider",
+            "compress",
+            "decrease_dc",
+            "partial_fourier_slider",
+            "undersample_kspace",
+            "high_pass_slider",
+            "low_pass_slider",
+            "ksp_const",
+            "filling",
+            "hamming",
+            "rdc_slider",
+            "zero_fill",
+            "compress",
+            "droparea",
+            "filling_mode",
+            "thumbnails",
+            "play_btn",
+        ]
 
         # Binding UI elements and controls
         for ctrl in ctrls:
             setattr(self, "ui_" + ctrl, bind(ctrl))
 
         # Bind Acquisition Control to UI
-        self._acquisition_control.signalStartMeasurement.connect(self.ui_play_btn.externalTriggerPlay)
+        self._acquisition_control.signalStartMeasurement.connect(
+            self.ui_play_btn.externalTriggerPlay
+        )
         self._acquisition_control.signalStart.emit()
 
         # Initialise an empty list of image paths that can later be filled
@@ -183,10 +203,10 @@ class SimulationApp(QQmlApplicationEngine):
     def kspace_simulation_finished(self):
         """Called when the kspace simulation is finished"""
         print("kspace_simulation_finished")
-        self._acquisition_control.upload_data_to_blob(self._im.kspacedata, 'raw-mri')
+        self._acquisition_control.upload_data_to_blob(self._im.kspacedata, "raw-mri")
 
     def execute_load(self):
-        """ Replaces the ImageManipulators class therefore changing the image
+        """Replaces the ImageManipulators class therefore changing the image
 
         Can be called by changing the image list (new image(s) opened) or by
         flipping through the existing list of images. If the image is not
@@ -212,8 +232,9 @@ class SimulationApp(QQmlApplicationEngine):
             for channel in range(self.channels):
                 # Extract 2D data slices from 3D array
                 file_data = self.file_data[channel, :, :]
-                self.img_instances[channel] = \
-                    ImageManipulators(file_data, self.is_image)
+                self.img_instances[channel] = ImageManipulators(
+                    file_data, self.is_image
+                )
             self._im = self.img_instances[0]
 
         # Let the QML thumbnails list know about the number of channels
@@ -224,9 +245,9 @@ class SimulationApp(QQmlApplicationEngine):
         self.ui_droparea.setProperty("loaded_imgs", len(self.url_list))
         self.ui_droparea.setProperty("curr_img", self.current_img + 1)
 
-    @Slot('QList<QUrl>', name="load_new_img")
+    @Slot("QList<QUrl>", name="load_new_img")
     def load_new_img(self, urls: list):
-        """ Image loader
+        """Image loader
 
         Loads an image from the specified path
 
@@ -246,7 +267,7 @@ class SimulationApp(QQmlApplicationEngine):
 
     @Slot(bool, name="next_img")
     def next_img(self, up: bool):
-        """ Steps to the next image on mousewheel event
+        """Steps to the next image on mousewheel event
 
         Parameters:
             up (bool): True if mousewheel moves up
@@ -259,7 +280,7 @@ class SimulationApp(QQmlApplicationEngine):
 
     @Slot(int, name="channel_change")
     def channel_change(self, channel: int):
-        """ Called when channel is selected in the thumbnails bar
+        """Called when channel is selected in the thumbnails bar
 
         Parameters:
             channel (int): Index of the selected channel
@@ -279,17 +300,17 @@ class SimulationApp(QQmlApplicationEngine):
             path (str): QUrl format file location (starts with "file:///")
         """
         import os.path
+
         filename, ext = os.path.splitext(path[8:])  # Remove QUrl's "file:///"
-        k_path = filename + '_k' + ext
-        i_path = filename + '_i' + ext
-        if ext.lower() == '.tiff':
+        k_path = filename + "_k" + ext
+        i_path = filename + "_i" + ext
+        if ext.lower() == ".tiff":
             Image.fromarray(self._im.img).save(i_path)
             Image.fromarray(self._im.kspace_display_data).save(k_path)
-        elif ext == '.png':
-            Image.fromarray(self._im.img).convert(mode='L').save(i_path)
-            Image.fromarray(self._im.kspace_display_data).convert(mode='L').save(
-                k_path)
-        elif ext == '.npy':
+        elif ext == ".png":
+            Image.fromarray(self._im.img).convert(mode="L").save(i_path)
+            Image.fromarray(self._im.kspace_display_data).convert(mode="L").save(k_path)
+        elif ext == ".npy":
             np.save(i_path, self._im.img)
             np.save(k_path, self._im.kspacedata)
 
@@ -350,10 +371,12 @@ class SimulationApp(QQmlApplicationEngine):
         # Replacing image source for QML Image elements - this will trigger
         # requestPixmap. The image name must be different for Qt to display the
         # new one, so a random string is appended to the end
-        self.ui_kspace_display. \
-            setProperty("source", "image://imgs/kspace_%s" % uuid4().hex)
-        self.ui_image_display. \
-            setProperty("source", "image://imgs/image_%s" % uuid4().hex)
+        self.ui_kspace_display.setProperty(
+            "source", "image://imgs/kspace_%s" % uuid4().hex
+        )
+        self.ui_image_display.setProperty(
+            "source", "image://imgs/image_%s" % uuid4().hex
+        )
 
         #  Iterate through thumbnails and set source image to trigger reload
         for item in self.ui_thumbnails.childItems()[0].childItems():
@@ -366,19 +389,21 @@ class SimulationApp(QQmlApplicationEngine):
                 pass
 
     def image_change(self):
-        """ Apply kspace modifiers to kspace and get resulting image"""
+        """Apply kspace modifiers to kspace and get resulting image"""
 
         # Get a copy of the original k-space data to play with
         self._im.resize_arrays(self._im.orig_kspacedata.shape)
         self._im.kspacedata[:] = self._im.orig_kspacedata
 
         # 01 - Noise
-        new_snr = self.ui_noise_slider.property('value')
+        new_snr = self.ui_noise_slider.property("value")
         generate_new = False
         if new_snr != self._im.signal_to_noise:
             generate_new = True
             self._im.signal_to_noise = new_snr
-        self._im.add_noise(self._im.kspacedata, new_snr, self._im.noise_map, generate_new)
+        self._im.add_noise(
+            self._im.kspacedata, new_snr, self._im.noise_map, generate_new
+        )
 
         # 02 - Spikes
         self._im.apply_spikes(self._im.kspacedata, self._im.spikes)
@@ -423,15 +448,17 @@ class SimulationApp(QQmlApplicationEngine):
         # 11 - Acquisition simulation progress
         if self.ui_filling.property("value") < 100:
             mode = self.ui_filling_mode.property("currentIndex")
-            self._im.filling(self._im.kspacedata, self.ui_filling.property("value"), mode)
+            self._im.filling(
+                self._im.kspacedata, self.ui_filling.property("value"), mode
+            )
 
         # Get the resulting image
         self._im.np_ifft(kspace=self._im.kspacedata, out=self._im.img)
 
         # Get display properties
-        kspace_const = int(self.ui_ksp_const.property('value'))
+        kspace_const = int(self.ui_ksp_const.property("value"))
         # Window values
         ww = self.ui_image_display.property("ww")
         wc = self.ui_image_display.property("wc")
-        win_val = {'ww': ww, 'wc': wc}
+        win_val = {"ww": ww, "wc": wc}
         self._im.prepare_displays(kspace_const, win_val)

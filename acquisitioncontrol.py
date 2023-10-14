@@ -3,57 +3,48 @@
 
 """This module contains the AcquisitionControl class."""
 
-import sys
-
-import os
-import requests
-import queue
-
-import numpy as np
-
-from http.server import BaseHTTPRequestHandler, HTTPServer
-import threading
 import json
-
-from scanhub import AcquisitionEvent, AcquisitionCommand
-
-from PySide6.QtCore import QObject, QThread, Signal, Slot
+import os
+import queue
+import sys
+import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 
-from PySide6.QtWidgets import (
-        QApplication,
-        QWidget,
-        QPushButton,
-        QLabel,
-        QVBoxLayout
-)
+import numpy as np
+import requests
+from PySide6.QtCore import QObject, Signal, Slot
+from PySide6.QtWidgets import (QApplication, QLabel, QPushButton, QVBoxLayout,
+                               QWidget)
+from scanhub import AcquisitionCommand, AcquisitionEvent
 
 
 class RequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
-        if self.path == '/api/start-scan':
-
-            content_length = int(self.headers['Content-Length'])
+        if self.path == "/api/start-scan":
+            content_length = int(self.headers["Content-Length"])
             post_data = self.rfile.read(content_length)
             payload = json.loads(post_data)
 
             # Access the payload data
-            record_id = payload['record_id']
-            sequence = payload['sequence']
+            record_id = payload["record_id"]
+            sequence = payload["sequence"]
 
-            acquisition_event = AcquisitionEvent(device_id="Simulator", 
-                                        record_id=record_id, 
-                                        command_id=AcquisitionCommand.start, 
-                                        input_sequence=sequence)
+            acquisition_event = AcquisitionEvent(
+                device_id="Simulator",
+                record_id=record_id,
+                command_id=AcquisitionCommand.start,
+                input_sequence=sequence,
+            )
 
             # Call the start-scan method of the AcquisitionControl instance
             self.server.acquisition_control.start_simulation(acquisition_event)
 
             # Send response back to the client
             self.send_response(200)
-            self.send_header('Content-type', 'application/json')
+            self.send_header("Content-type", "application/json")
             self.end_headers()
-            response = {'message': 'Simulation started'}
+            response = {"message": "Simulation started"}
             self.wfile.write(json.dumps(response).encode())
         else:
             # Send 404 error for unknown endpoints
@@ -61,7 +52,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.end_headers()
 
 
-class ThreadedHttpServer():
+class ThreadedHttpServer:
     def __init__(self, host, port, acquisition_control):
         self.host = host
         self.port = port
@@ -70,8 +61,11 @@ class ThreadedHttpServer():
     def start(self):
         server_address = (self.host, self.port)
         self.httpd = HTTPServer(server_address, RequestHandler)
-        RequestHandler.server = self.httpd  # Pass the server instance to the request handler
-        RequestHandler.server.acquisition_control = self.acquisition_control  # Pass the AcquisitionControl instance to the request handler
+        RequestHandler.server = (
+            self.httpd
+        )  # Pass the server instance to the request handler
+        # Pass the AcquisitionControl instance to the request handler
+        RequestHandler.server.acquisition_control = self.acquisition_control
         server_thread = threading.Thread(target=self.httpd.serve_forever)
         server_thread.start()
 
@@ -101,7 +95,7 @@ class AcquisitionControl(QObject):
         super(self.__class__, self).__init__(parent)
 
         # Create the threaded http server
-        self._threaded_http_server = ThreadedHttpServer('localhost', 5000, self)
+        self._threaded_http_server = ThreadedHttpServer("localhost", 5000, self)
 
         # Set the ScanHub ID
         self._scanhub_id = scanhub_id
@@ -111,18 +105,17 @@ class AcquisitionControl(QObject):
 
         # Start the HTTP server
         self._threaded_http_server.start()
-        
 
     def __del__(self):
-        """ Destructor"""
+        """Destructor"""
         self.forceWorkerQuit()
 
     def start_simulation(self, acquisition_event: AcquisitionEvent):
         """Starts the simulation"""
-        print('Starting simulation...')
+        print("Starting simulation...")
         print(acquisition_event)
 
-        self.signalStatus.emit('Starting simulation...')
+        self.signalStatus.emit("Starting simulation...")
         self._acquisition_queue.put(acquisition_event)
         self.signalStartMeasurement.emit()
 
@@ -156,27 +149,26 @@ class AcquisitionControl(QObject):
 
     def upload_data_to_blob(self, array: np.ndarray, container_name):
         try:
-
             tmp_directory_path = os.fspath(Path(__file__).resolve().parent / "tmp")
 
             # If folder doesn't exist, then create it.
             if not os.path.isdir(tmp_directory_path):
                 os.makedirs(tmp_directory_path)
-                print(f'created directory : {tmp_directory_path}')
+                print(f"created directory : {tmp_directory_path}")
 
             tmp_file_path = os.fspath(Path(__file__).resolve().parent / "tmp/data.npy")
 
-            print(f'save data to {tmp_file_path}')
+            print(f"save data to {tmp_file_path}")
             np.save(tmp_file_path, array)
 
             acquisition_event = self._acquisition_queue.get()
 
-            print(f'finished acquisition_event : {acquisition_event}')
+            print(f"finished acquisition_event : {acquisition_event}")
 
-            file = {'file': open(tmp_file_path,'rb')}
+            file = {"file": open(tmp_file_path, "rb")}
             url = f"http://localhost:8080/api/v1/workflow/upload/{acquisition_event.record_id}"
 
-            print(f'uploading to {url}')
+            print(f"uploading to {url}")
 
             r = requests.post(url, files=file)
             print(r.json())
@@ -187,13 +179,13 @@ class AcquisitionControl(QObject):
             return False
 
 
-#DEBUG CODE STARTING HERE
+# DEBUG CODE STARTING HERE
 class Window(QWidget):
     def __init__(self):
         QWidget.__init__(self)
-        self.button_start = QPushButton('Start', self)
-        self.button_cancel = QPushButton('Cancel', self)
-        self.label_status = QLabel('', self)
+        self.button_start = QPushButton("Start", self)
+        self.button_cancel = QPushButton("Cancel", self)
+        self.label_status = QLabel("", self)
 
         layout = QVBoxLayout(self)
         layout.addWidget(self.button_start)
@@ -208,21 +200,21 @@ class Window(QWidget):
 
     @Slot(str)
     def startMeasurement(self):
-        self.label_status.setText('Start Measurement')
+        self.label_status.setText("Start Measurement")
 
     @Slot(str)
     def stopMeasurement(self):
-        self.label_status.setText('Stop Measurement')
+        self.label_status.setText("Stop Measurement")
 
     @Slot(str)
     def pauseMeasurement(self):
-        self.label_status.setText('Pause Measurement')
+        self.label_status.setText("Pause Measurement")
 
 
-if __name__=='__main__':
+if __name__ == "__main__":
     app = QApplication(sys.argv)
     control = AcquisitionControl(app)
-   
+
     # Create a gui object.
     gui = Window()
     gui.button_cancel.clicked.connect(control.forceWorkerReset)

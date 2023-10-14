@@ -52,8 +52,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pydeps-${{ matrix.python-version }}-
 
-      - name: Install dependencies if cache was not hit
-        run: poetry install --no-interaction
+      - name: Poetry install
+        run: poetry install --no-interaction --with lint
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
 
       - name: Run linter

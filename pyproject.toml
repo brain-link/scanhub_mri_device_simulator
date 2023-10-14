@@ -2,7 +2,7 @@
 name = "scanhub-mri-device-simulator"
 version = "0.0.1"
 description = "ScanHub MRI Device Simulator is a Python package for simulating MRI devices. It is part of the ScanHub project."
-authors = ["Christoph Dinh <christoph.dinh@brain-link.de>"]
+authors = ["BRAIN-LINK UG (haftungsbeschraenkt) <info@brain-link.de>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
