@@ -61,6 +61,7 @@ disable = ["too-few-public-methods"]    # suppress warning at pydantic BaseModel
 
 [tool.flake8]
 max-line-length = 120
+exclude = ".venv"
 
 [tool.mypy]
 plugins = ["numpy.typing.mypy_plugin"]
