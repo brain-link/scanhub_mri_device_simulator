@@ -1,7 +1,7 @@
 # Copyright (C) 2023, BRAIN-LINK UG (haftungsbeschränkt). All Rights Reserved.
 # SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-ScanHub-Commercial
 
-"""This module contains the main application entry point."""
+"""Contains the main application entry point."""
 
 import logging.config
 import os
@@ -38,8 +38,18 @@ else:
 if __name__ == "__main__":
     """Main application entry point"""
 
-    # Handling QML messages and catching Python exceptions
     def qt_msg_handler(mode, context, message):
+        """Handle Qt messages and catching Python exceptions.
+
+        Parameters
+        ----------
+        mode : int
+            Message mode.
+        context : QMessageLogContext
+            Message context.
+        message : str
+            Message text.
+        """
         # https://doc.qt.io/qt-5/qtglobal.html#QtMsgType-enum
         # modes = ['Debug', 'Warning', 'Critical', 'Fatal', 'Info']
         py_log_lvl = [10, 30, 50, 0, 20]

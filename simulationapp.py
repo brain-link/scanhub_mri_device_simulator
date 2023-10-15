@@ -1,7 +1,7 @@
 # Copyright (C) 2023, BRAIN-LINK UG (haftungsbeschränkt). All Rights Reserved.
 # SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-ScanHub-Commercial
 
-"""This module contains the SimulationApp class."""
+"""Contains the definition of the SimulationApp class."""
 
 import logging
 import os
@@ -30,6 +30,17 @@ log = logging.getLogger(__name__)
 
 
 def qt_msgbox(text="", fatal=False):
+    """Display a Qt message box.
+
+    Parameters
+    ----------
+        text (str): The message to be displayed
+        fatal (bool): True if the message is fatal and the app should quit
+
+    Returns
+    -------
+        QMessageBox.result: The result of the message box
+    """
     link = "https://github.com/brain-link/scanhub-mri-device-simulator/issues"
     suffix = "\n\nA log file has been created."
     if fatal:
@@ -50,20 +61,21 @@ def qt_msgbox(text="", fatal=False):
 
 
 def open_file(path: str, dtype: np.dtype = np.float32) -> np.ndarray:
-    """Tries to load image data into a NumPy ndarray
+    """Try to load image data into a NumPy ndarray.
 
     The function first tries to use the PIL Image library to identify and load
     the image. PIL will convert the image to 8-bit pixels, black and white.
     If PIL fails pydicom is the next choice.
 
-    Parameters:
+    Parameters
+    ----------
         path (str): The image file location
         dtype (np.dtype): image array dtype (e.g. np.float64)
 
-    Returns:
+    Returns
+    -------
         np.ndarray: a floating point NumPy ndarray of the specified dtype
     """
-
     try:
         log.info(f"Opening file: {path}")
         with Image.open(path) as f:
@@ -96,8 +108,9 @@ def open_file(path: str, dtype: np.dtype = np.float32) -> np.ndarray:
 
 
 class SimulationApp(QQmlApplicationEngine):
-    """Simulation App
-    This class handles all interaction with the QML user interface
+    """Simulation App class.
+
+    This class handles all interaction with the QML user interface.
     """
 
     _default_image = "data/default.dcm"  # 'data/ca7cd7de-8639-415a-8556-06634041e4b2.dcm' # 'data/default.dcm'
@@ -105,6 +118,7 @@ class SimulationApp(QQmlApplicationEngine):
     _default_image = str(_app_path.joinpath(_default_image))
 
     def __init__(self, parent=None):
+        """Initialise the SimulationApp class."""
         # Call super class
         super(SimulationApp, self).__init__(parent)
 
@@ -148,12 +162,14 @@ class SimulationApp(QQmlApplicationEngine):
         # self.ctx = context
 
         def bind(object_name: str) -> QtQuick.QQuickItem:
-            """Finds the QML Object with the object name
+            """Find the QML Object with the given object name.
 
-            Parameters:
+            Parameter
+            ---------
                 object_name (str): UI element's objectName in QML file
 
-            Returns:
+            Return
+            ------
                 QQuickItem: Reference to the QQuickItem found by the function
             """
             return self.win.findChild(QObject, object_name)
@@ -201,12 +217,12 @@ class SimulationApp(QQmlApplicationEngine):
 
     @Slot(name="kspace_simulation_finished")
     def kspace_simulation_finished(self):
-        """Called when the kspace simulation is finished"""
+        """Call when the kspace simulation is finished."""
         print("kspace_simulation_finished")
         self._acquisition_control.upload_data_to_blob(self._im.kspacedata, "raw-mri")
 
     def execute_load(self):
-        """Replaces the ImageManipulators class therefore changing the image
+        """Replace the ImageManipulators class therefore changing the image.
 
         Can be called by changing the image list (new image(s) opened) or by
         flipping through the existing list of images. If the image is not
@@ -247,11 +263,12 @@ class SimulationApp(QQmlApplicationEngine):
 
     @Slot("QList<QUrl>", name="load_new_img")
     def load_new_img(self, urls: list):
-        """Image loader
+        """Image loader slot.
 
-        Loads an image from the specified path
+        Loads an image from the specified path.
 
-        Parameters:
+        Parameters
+        ----------
             urls: list of QUrls to be opened
         """
         log.info(f"New image list: {urls}")
@@ -267,9 +284,10 @@ class SimulationApp(QQmlApplicationEngine):
 
     @Slot(bool, name="next_img")
     def next_img(self, up: bool):
-        """Steps to the next image on mousewheel event
+        """Step to the next image on mousewheel event.
 
-        Parameters:
+        Parameters
+        ----------
             up (bool): True if mousewheel moves up
 
         """
@@ -280,9 +298,10 @@ class SimulationApp(QQmlApplicationEngine):
 
     @Slot(int, name="channel_change")
     def channel_change(self, channel: int):
-        """Called when channel is selected in the thumbnails bar
+        """Call when channel is selected in the thumbnails bar.
 
-        Parameters:
+        Parameters
+        ----------
             channel (int): Index of the selected channel
 
         """
@@ -291,12 +310,13 @@ class SimulationApp(QQmlApplicationEngine):
 
     @Slot(str, name="save_img")
     def save_img(self, path):
-        """Saves the visible kspace and image to files
+        """Save the visible kspace and image to files.
 
         Saves the 32 bit/pixel image if TIFF format is selected otherwise
         the PNG file will have a depth of 8 bits.
 
-        Parameters:
+        Parameters
+        ----------
             path (str): QUrl format file location (starts with "file:///")
         """
         import os.path
@@ -316,12 +336,13 @@ class SimulationApp(QQmlApplicationEngine):
 
     @Slot(float, float, name="add_spike")
     def add_spike(self, mouse_x, mouse_y):
-        """Inserts a spike at a location given by the UI.
+        """Insert a spike at a location given by the UI.
 
         Values are saved in reverse order because NumPy's indexing conventions:
         array[row (== y), column (== x)]
 
-        Parameters:
+        Parameters
+        ----------
             mouse_x: click position on the x-axis
             mouse_y: click position on the y-axis
         """
@@ -329,12 +350,13 @@ class SimulationApp(QQmlApplicationEngine):
 
     @Slot(float, float, float, name="add_patch")
     def add_patch(self, mouse_x, mouse_y, radius):
-        """Inserts a patch at a location given by the UI.
+        """Insert a patch at a location given by the UI.
 
         Values are saved in reverse order because NumPy's indexing conventions:
         array[row (== y), column (== x)]
 
-        Parameters:
+        Parameters
+        ----------
             mouse_x: click position on the x-axis
             mouse_y: click position on the y-axis
             radius: size of the patch
@@ -343,29 +365,29 @@ class SimulationApp(QQmlApplicationEngine):
 
     @Slot(name="delete_spikes")
     def delete_spikes(self):
-        """Deletes manually added kspace spikes"""
+        """Delete manually added kspace spikes."""
         self._im.spikes = []
 
     @Slot(name="delete_patches")
     def delete_patches(self):
-        """Deletes manually added kspace patches"""
+        """Delete manually added kspace patches."""
         self._im.patches = []
 
     @Slot(name="undo_patch")
     def undo_patch(self):
-        """Deletes the last patch"""
+        """Delete the last patch."""
         if self._im.patches:
             del self._im.patches[-1]
 
     @Slot(name="undo_spike")
     def undo_spike(self):
-        """Deletes the last spike"""
+        """Delete the last spike."""
         if self._im.spikes:
             del self._im.spikes[-1]
 
     @Slot(name="update_displays")
     def update_displays(self):
-        """Triggers modifiers to kspace and updates the displays"""
+        """Trigger modifiers to kspace and updates the displays."""
         self.image_change()
 
         # Replacing image source for QML Image elements - this will trigger
@@ -389,8 +411,7 @@ class SimulationApp(QQmlApplicationEngine):
                 pass
 
     def image_change(self):
-        """Apply kspace modifiers to kspace and get resulting image"""
-
+        """Apply kspace modifiers to kspace and get resulting image."""
         # Get a copy of the original k-space data to play with
         self._im.resize_arrays(self._im.orig_kspacedata.shape)
         self._im.kspacedata[:] = self._im.orig_kspacedata
