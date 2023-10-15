@@ -85,7 +85,7 @@ lint.ignore_fail = "return_non_zero"
 
     [tool.poe.tasks.mypy]
     help = "Run mypy"
-    cmd  = "mypy ."
+    cmd  = "mypy --explicit-package-bases ."
 
     [tool.poe.tasks.flake8]
     help = "Run flake8"
