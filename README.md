@@ -2,8 +2,8 @@ ScanHub MRI Device Simulator
 ----------------------------
 
 <p align="center">
-<a href="https://github.com/brain-link/scanhub-mri-device-simulator/actions/workflows/static-tests.yml" target="_blank">
-    <img src="https://github.com/brain-link/scanhub-mri-device-simulator/actions/workflows/static-tests.yml/badge.svg" alt="Static Tests"/>
+<a href="https://github.com/brain-link/scanhub_mri_device_simulator/actions/workflows/static-tests.yml" target="_blank">
+    <img src="https://github.com/brain-link/scanhub_mri_device_simulator/actions/workflows/static-tests.yml/badge.svg" alt="Static Tests"/>
 </a>
 </p>
 
