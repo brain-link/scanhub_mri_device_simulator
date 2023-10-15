@@ -14,8 +14,7 @@ from pathlib import Path
 import numpy as np
 import requests
 from PySide6.QtCore import QObject, Signal, Slot
-from PySide6.QtWidgets import (QApplication, QLabel, QPushButton, QVBoxLayout,
-                               QWidget)
+from PySide6.QtWidgets import QApplication, QLabel, QPushButton, QVBoxLayout, QWidget
 from scanhub import AcquisitionCommand, AcquisitionEvent  # type: ignore
 
 
@@ -68,9 +67,7 @@ class ThreadedHttpServer:
         """Start the HTTP server."""
         server_address = (self.host, self.port)
         self.httpd = HTTPServer(server_address, RequestHandler)
-        RequestHandler.server = (
-            self.httpd
-        )  # Pass the server instance to the request handler
+        RequestHandler.server = self.httpd  # Pass the server instance to the request handler
         # Pass the AcquisitionControl instance to the request handler
         RequestHandler.server.acquisition_control = self.acquisition_control
         server_thread = threading.Thread(target=self.httpd.serve_forever)

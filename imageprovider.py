@@ -57,7 +57,7 @@ class ImageProvider(QtQuick.QQuickImageProvider):
                 )  # format
 
             elif id_str.startswith("thumb"):
-                thumb_id = int(id_str[6: 6 + id_str[6:].find("_")])
+                thumb_id = int(id_str[6 : 6 + id_str[6:].find("_")])
                 im_c = py_SimulationApp.img_instances[thumb_id]  # type: ignore
                 q_im = QImage(  # type: ignore
                     im_c.image_display_data,  # data

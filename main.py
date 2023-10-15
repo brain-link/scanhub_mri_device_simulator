@@ -61,12 +61,8 @@ if __name__ == "__main__":
     # qInstallMessageHandler(qt_msg_handler)
 
     app = QApplication(sys.argv)
-    QFontDatabase.addApplicationFont(
-        os.fspath(Path(__file__).resolve().parent / "resources/fontello.ttf")
-    )
-    app.setWindowIcon(
-        QIcon(os.fspath(Path(__file__).resolve().parent / "resources/scanhub.ico"))
-    )
+    QFontDatabase.addApplicationFont(os.fspath(Path(__file__).resolve().parent / "resources/fontello.ttf"))
+    app.setWindowIcon(QIcon(os.fspath(Path(__file__).resolve().parent / "resources/scanhub.ico")))
 
     app.setOrganizationName("ScanHub MRI Simulator")
     app.setOrganizationDomain("brain-link.de")

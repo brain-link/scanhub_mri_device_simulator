@@ -206,9 +206,7 @@ class SimulationApp(QQmlApplicationEngine):
             setattr(self, "ui_" + ctrl, bind(ctrl))
 
         # Bind Acquisition Control to UI
-        self._acquisition_control.signalStartMeasurement.connect(
-            self.ui_play_btn.externalTriggerPlay
-        )
+        self._acquisition_control.signalStartMeasurement.connect(self.ui_play_btn.externalTriggerPlay)
         self._acquisition_control.signalStart.emit()
 
         # Initialise an empty list of image paths that can later be filled
@@ -252,9 +250,7 @@ class SimulationApp(QQmlApplicationEngine):
             for channel in range(self.channels):
                 # Extract 2D data slices from 3D array
                 file_data = self.file_data[channel, :, :]
-                self.img_instances[channel] = ImageManipulators(
-                    file_data, self.is_image
-                )
+                self.img_instances[channel] = ImageManipulators(file_data, self.is_image)
             self._im = self.img_instances[0]
 
         # Let the QML thumbnails list know about the number of channels
@@ -406,12 +402,8 @@ class SimulationApp(QQmlApplicationEngine):
         # Replacing image source for QML Image elements - this will trigger
         # requestPixmap. The image name must be different for Qt to display the
         # new one, so a random string is appended to the end
-        self.ui_kspace_display.setProperty(
-            "source", "image://imgs/kspace_%s" % uuid4().hex
-        )
-        self.ui_image_display.setProperty(
-            "source", "image://imgs/image_%s" % uuid4().hex
-        )
+        self.ui_kspace_display.setProperty("source", "image://imgs/kspace_%s" % uuid4().hex)
+        self.ui_image_display.setProperty("source", "image://imgs/image_%s" % uuid4().hex)
 
         #  Iterate through thumbnails and set source image to trigger reload
         for item in self.ui_thumbnails.childItems()[0].childItems():
@@ -435,9 +427,7 @@ class SimulationApp(QQmlApplicationEngine):
         if new_snr != self._im.signal_to_noise:
             generate_new = True
             self._im.signal_to_noise = new_snr
-        self._im.add_noise(
-            self._im.kspacedata, new_snr, self._im.noise_map, generate_new
-        )
+        self._im.add_noise(self._im.kspacedata, new_snr, self._im.noise_map, generate_new)
 
         # 02 - Spikes
         self._im.apply_spikes(self._im.kspacedata, self._im.spikes)
@@ -482,9 +472,7 @@ class SimulationApp(QQmlApplicationEngine):
         # 11 - Acquisition simulation progress
         if self.ui_filling.property("value") < 100:
             mode = self.ui_filling_mode.property("currentIndex")
-            self._im.filling(
-                self._im.kspacedata, self.ui_filling.property("value"), mode
-            )
+            self._im.filling(self._im.kspacedata, self.ui_filling.property("value"), mode)
 
         # Get the resulting image
         self._im.np_ifft(kspace=self._im.kspacedata, out=self._im.img)

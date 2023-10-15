@@ -61,6 +61,7 @@ disable = ["too-few-public-methods", "invalid-name"]   # suppress warning at pyd
 
 [tool.flake8]
 max-line-length = 120
+extend-ignore = ["E203"]
 exclude = "./venv, ./.venv"
 
 [tool.mypy]

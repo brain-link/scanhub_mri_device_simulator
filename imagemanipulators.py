@@ -249,7 +249,7 @@ class ImageManipulators:
 
             rows, cols = np.array(kspace.shape, dtype=int)
             a, b = np.floor(np.array((rows, cols)) / 2).astype(int)
-            y, x = np.ogrid[-a: rows - a, -b: cols - b]
+            y, x = np.ogrid[-a : rows - a, -b : cols - b]
             mask = x * x + y * y <= r * r
             kspace[mask] = 0
 
@@ -279,7 +279,7 @@ class ImageManipulators:
 
             rows, cols = np.array(kspace.shape, dtype=int)
             a, b = np.floor(np.array((rows, cols)) / 2).astype(int)
-            y, x = np.ogrid[-a: rows - a, -b: cols - b]
+            y, x = np.ogrid[-a : rows - a, -b : cols - b]
             mask = x * x + y * y <= r * r
             kspace[~mask] = 0
 
@@ -354,9 +354,7 @@ class ImageManipulators:
                 #       columns or rows is even) roll lines to realign the
                 #       highest amplitude parts
                 # 3. Do the same vertically
-                kspace[-rows_to_skip:] = np.roll(kspace[::-1, ::-1], s, axis=(0, 1))[
-                    -rows_to_skip:
-                ]
+                kspace[-rows_to_skip:] = np.roll(kspace[::-1, ::-1], s, axis=(0, 1))[-rows_to_skip:]
 
                 # Conjugate replaced lines
                 np.conj(kspace[-rows_to_skip:], kspace[-rows_to_skip:])
@@ -458,7 +456,7 @@ class ImageManipulators:
         """
         for patch in patches:
             x, y, size = patch[0], patch[1], patch[2]
-            kspace[max(x - size, 0): x + size + 1, max(y - size, 0): y + size + 1] = 0
+            kspace[max(x - size, 0) : x + size + 1, max(y - size, 0) : y + size + 1] = 0
 
     @staticmethod
     def filling(kspace: np.ndarray, value: float, mode: int):
@@ -500,7 +498,7 @@ class ImageManipulators:
             value : float
                 acquisition phase in percent
         """
-        kspace.flat[int(kspace.size * value // 100)::] = 0
+        kspace.flat[int(kspace.size * value // 100) : :] = 0
 
     @staticmethod
     def filling_centric(kspace: np.ndarray, value: float):
@@ -519,14 +517,14 @@ class ImageManipulators:
         ksp_centric = np.zeros_like(kspace)
 
         # reorder
-        ksp_centric[0::2] = kspace[kspace.shape[0] // 2::]
-        ksp_centric[1::2] = kspace[kspace.shape[0] // 2 - 1:: -1]
+        ksp_centric[0::2] = kspace[kspace.shape[0] // 2 : :]
+        ksp_centric[1::2] = kspace[kspace.shape[0] // 2 - 1 :: -1]
 
-        ksp_centric.flat[int(kspace.size * value / 100)::] = 0
+        ksp_centric.flat[int(kspace.size * value / 100) : :] = 0
 
         # original order
-        kspace[(kspace.shape[0]) // 2 - 1:: -1] = ksp_centric[1::2]
-        kspace[(kspace.shape[0]) // 2::] = ksp_centric[0::2]
+        kspace[(kspace.shape[0]) // 2 - 1 :: -1] = ksp_centric[1::2]
+        kspace[(kspace.shape[0]) // 2 : :] = ksp_centric[0::2]
 
     @staticmethod
     def filling_ss_epi_blipped(kspace: np.ndarray, value: float):
@@ -544,7 +542,7 @@ class ImageManipulators:
         ksp_epi[::2] = kspace[::2]
         ksp_epi[1::2] = kspace[1::2, ::-1]  # Every second line backwards
 
-        ksp_epi.flat[int(kspace.size * value / 100)::] = 0
+        ksp_epi.flat[int(kspace.size * value / 100) : :] = 0
 
         kspace[::2] = ksp_epi[::2]
         kspace[1::2] = ksp_epi[1::2, ::-1]
