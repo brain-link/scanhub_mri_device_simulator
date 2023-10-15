@@ -60,7 +60,7 @@ def qt_msgbox(text="", fatal=False):
         return msg.result()
 
 
-def open_file(path: str, dtype: np.dtype = np.float32) -> np.ndarray:
+def open_file(path: str, dtype: np.dtype = np.float32) -> np.ndarray:  # type: ignore
     """Try to load image data into a NumPy ndarray.
 
     The function first tries to use the PIL Image library to identify and load
@@ -90,6 +90,7 @@ def open_file(path: str, dtype: np.dtype = np.float32) -> np.ndarray:
         log.error("File not found", exc_info=True)
         if "im" not in globals():  # Quit gracefully if first start fails
             qt_msgbox(f"File not found. ({path}).", fatal=True)
+        raise FileNotFoundError(f"File not found. ({path}).")
     except PIL.UnidentifiedImageError:
         log.info("Filetype is not recognised by PIL. Trying pydicom.")
         try:
@@ -264,7 +265,7 @@ class SimulationApp(QQmlApplicationEngine):
         self.ui_droparea.setProperty("loaded_imgs", len(self.url_list))
         self.ui_droparea.setProperty("curr_img", self.current_img + 1)
 
-    @Slot("QList<QUrl>", name="load_new_img")
+    @Slot("QList<QUrl>", name="load_new_img")  # type: ignore
     def load_new_img(self, urls: list):
         """Image loader slot.
 
@@ -282,8 +283,8 @@ class SimulationApp(QQmlApplicationEngine):
         # Using QUrl.toLocalFile to convert list elements to strings
         self.url_list[:] = [s.toLocalFile() for s in urls]
 
-        self.ui_droparea.setProperty("loaded_imgs", len(self.url_list))
-        self.ui_droparea.setProperty("curr_img", self.current_img + 1)
+        self.ui_droparea.setProperty("loaded_imgs", len(self.url_list))  # type: ignore
+        self.ui_droparea.setProperty("curr_img", self.current_img + 1)  # type: ignore
         self.execute_load()
 
     @Slot(bool, name="next_img")

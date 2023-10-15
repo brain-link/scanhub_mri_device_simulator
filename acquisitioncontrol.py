@@ -16,7 +16,7 @@ import requests
 from PySide6.QtCore import QObject, Signal, Slot
 from PySide6.QtWidgets import (QApplication, QLabel, QPushButton, QVBoxLayout,
                                QWidget)
-from scanhub import AcquisitionCommand, AcquisitionEvent
+from scanhub import AcquisitionCommand, AcquisitionEvent  # type: ignore
 
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -231,11 +231,11 @@ class Window(QWidget):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    control = AcquisitionControl(app)
+    control = AcquisitionControl(app, None, None, None)
 
     # Create a gui object.
     gui = Window()
-    gui.button_cancel.clicked.connect(control.forceWorkerReset)
+    gui.button_cancel.clicked.connect(control.forceWorkerQuit)
     control.signalStatus.connect(gui.updateStatus)
     control.signalStartMeasurement.connect(gui.startMeasurement)
     control.signalStopMeasurement.connect(gui.stopMeasurement)

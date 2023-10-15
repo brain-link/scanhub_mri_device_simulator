@@ -18,7 +18,7 @@ class ImageProvider(QtQuick.QQuickImageProvider):
     """
 
     def __init__(self, im: ImageManipulators):
-        QtQuick.QQuickImageProvider.__init__(self, QtQuick.QQuickImageProvider.Pixmap)
+        QtQuick.QQuickImageProvider.__init__(self, QtQuick.QQuickImageProvider.Pixmap)  # type: ignore
         self._im = im
 
     def requestPixmap(self, id_str: str, size, requested_size) -> QPixmap:
@@ -39,32 +39,32 @@ class ImageProvider(QtQuick.QQuickImageProvider):
         """
         try:
             if id_str.startswith("image"):
-                q_im = QImage(
+                q_im = QImage(  # type: ignore
                     self._im.image_display_data,  # data
                     self._im.image_display_data.shape[1],  # width
                     self._im.image_display_data.shape[0],  # height
                     self._im.image_display_data.strides[0],  # bytes/line
-                    QImage.Format_Grayscale8,
+                    QImage.Format_Grayscale8,  # type: ignore
                 )  # format
 
             elif id_str.startswith("kspace"):
-                q_im = QImage(
+                q_im = QImage(  # type: ignore
                     self._im.kspace_display_data,  # data
                     self._im.kspace_display_data.shape[1],  # width
                     self._im.kspace_display_data.shape[0],  # height
                     self._im.kspace_display_data.strides[0],  # bytes/line
-                    QImage.Format_Grayscale8,
+                    QImage.Format_Grayscale8,  # type: ignore
                 )  # format
 
             elif id_str.startswith("thumb"):
                 thumb_id = int(id_str[6: 6 + id_str[6:].find("_")])
-                im_c = py_SimulationApp.img_instances[thumb_id]
-                q_im = QImage(
+                im_c = py_SimulationApp.img_instances[thumb_id]  # type: ignore
+                q_im = QImage(  # type: ignore
                     im_c.image_display_data,  # data
                     im_c.image_display_data.shape[1],  # width
                     im_c.image_display_data.shape[0],  # height
                     im_c.image_display_data.strides[0],  # bytes/line
-                    QImage.Format_Grayscale8,
+                    QImage.Format_Grayscale8,  # type: ignore
                 )  # format
 
             else:

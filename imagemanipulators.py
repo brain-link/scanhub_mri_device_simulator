@@ -240,7 +240,13 @@ class ImageManipulators:
                 Relative size of the kspace mask circle (percent)
         """
         if radius > 0:
-            r = np.hypot(*kspace.shape) / 2 * radius / 100
+            # Ensure kspace is 2D
+            assert kspace.ndim == 2, "kspace must be 2D!"
+
+            # Explicitly specify dimensions for hypot
+            dim_x, dim_y = kspace.shape
+            r = np.hypot(dim_x, dim_y) / 2 * radius / 100
+
             rows, cols = np.array(kspace.shape, dtype=int)
             a, b = np.floor(np.array((rows, cols)) / 2).astype(int)
             y, x = np.ogrid[-a: rows - a, -b: cols - b]
@@ -264,7 +270,13 @@ class ImageManipulators:
                 Relative size of the kspace mask circle (percent)
         """
         if radius < 100:
-            r = np.hypot(*kspace.shape) / 2 * radius / 100
+            # Ensure kspace is 2D
+            assert kspace.ndim == 2, "kspace must be 2D!"
+
+            # Explicitly specify dimensions for hypot
+            dim_x, dim_y = kspace.shape
+            r = np.hypot(dim_x, dim_y) / 2 * radius / 100
+
             rows, cols = np.array(kspace.shape, dtype=int)
             a, b = np.floor(np.array((rows, cols)) / 2).astype(int)
             y, x = np.ogrid[-a: rows - a, -b: cols - b]
