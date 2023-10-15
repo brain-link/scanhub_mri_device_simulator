@@ -4,10 +4,11 @@
 """Contains the definition of the ImageManipulators class."""
 
 import numpy as np
+from typing import Any
 
 # Attempting to use mkl_fft (faster FFT library for Intel CPUs). Fallback is np
 try:
-    import mkl_fft as m
+    import mkl_fft as m  # type: ignore
 
     fft2 = m.fft2
     ifft2 = m.ifft2
@@ -50,8 +51,8 @@ class ImageManipulators:
         self.kspace_abs = np.zeros_like(self.kspacedata, dtype=np.float32)
         self.noise_map = np.zeros_like(self.kspace_abs)
         self.signal_to_noise = 30
-        self.spikes = []
-        self.patches = []
+        self.spikes: list[tuple[int, int]] = []
+        self.patches: list[tuple[int, int, int]] = []
 
         if is_image:
             self.np_fft(self.img, self.kspacedata)
@@ -111,7 +112,7 @@ class ImageManipulators:
             f[:] = np.floor((f[:] - fmin) / coeff * 255.0)
 
     @staticmethod
-    def apply_window(f: np.ndarray, window_val: dict = None):
+    def apply_window(f: np.ndarray, window_val: dict[Any, Any] | None = None):
         """Apply window values to the array.
 
         Excludes certain values based on window width and center before
