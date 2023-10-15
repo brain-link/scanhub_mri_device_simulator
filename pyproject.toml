@@ -14,6 +14,9 @@ requests = "^2.31.0"
 cffi = "^1.15.1"
 scanhub = "0.0.4.dev4"
 pyside6 = "^6.5.2"
+mypy = "^1.6.0"
+flake8 = "^6.1.0"
+types-requests = "^2.31.0.9"
 
 [build-system]
 requires = ["poetry-core"]
@@ -42,6 +45,12 @@ sphinx_rtd_theme = "*"
 [tool.pydocstyle]
 convention = "numpy"
 
+[tool.isort]
+line_length = 120
+
+[tool.black]
+line-length = 120
+
 [tool.pylint]
 py-version = "3.10"
 max-attributes = 20
@@ -51,9 +60,6 @@ disable = ["too-few-public-methods"]    # suppress warning at pydantic BaseModel
 
 [tool.flake8]
 max-line-length = 120
-
-[tool.mypy]
-plugins = ["sqlalchemy.ext.mypy.plugin"]
 
 [tool.poe.tasks]
 lint.sequence = ["isort", "black", "pylint", "flake8", "mypy", "pydocstyle"]
@@ -73,7 +79,7 @@ lint.ignore_fail = "return_non_zero"
 
     [tool.poe.tasks.mypy]
     help = "Run mypy"
-    cmd  = "mypy"
+    cmd  = "mypy ."
 
     [tool.poe.tasks.flake8]
     help = "Run flake8"
