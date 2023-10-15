@@ -69,8 +69,10 @@ def open_file(path: str, dtype: np.dtype = np.float32) -> np.ndarray:
 
     Parameters
     ----------
-        path (str): The image file location
-        dtype (np.dtype): image array dtype (e.g. np.float64)
+        path : str
+            The image file location
+        dtype : np.dtype
+            image array dtype (e.g. np.float64)
 
     Returns
     -------
@@ -164,12 +166,13 @@ class SimulationApp(QQmlApplicationEngine):
         def bind(object_name: str) -> QtQuick.QQuickItem:
             """Find the QML Object with the given object name.
 
-            Parameter
-            ---------
-                object_name (str): UI element's objectName in QML file
+            Parameters
+            ----------
+                object_name : str
+                    UI element's objectName in QML file
 
-            Return
-            ------
+            Returns
+            -------
                 QQuickItem: Reference to the QQuickItem found by the function
             """
             return self.win.findChild(QObject, object_name)
@@ -269,7 +272,8 @@ class SimulationApp(QQmlApplicationEngine):
 
         Parameters
         ----------
-            urls: list of QUrls to be opened
+            urls: list
+                list of QUrls to be opened
         """
         log.info(f"New image list: {urls}")
 
@@ -288,7 +292,8 @@ class SimulationApp(QQmlApplicationEngine):
 
         Parameters
         ----------
-            up (bool): True if mousewheel moves up
+            up : bool
+                True if mousewheel moves up
 
         """
         if len(self.url_list):
@@ -302,7 +307,8 @@ class SimulationApp(QQmlApplicationEngine):
 
         Parameters
         ----------
-            channel (int): Index of the selected channel
+            channel : int
+                Index of the selected channel
 
         """
         self._im = self.img_instances[int(channel)]
@@ -317,7 +323,8 @@ class SimulationApp(QQmlApplicationEngine):
 
         Parameters
         ----------
-            path (str): QUrl format file location (starts with "file:///")
+            path : str
+                QUrl format file location (starts with "file:///")
         """
         import os.path
 
@@ -343,8 +350,10 @@ class SimulationApp(QQmlApplicationEngine):
 
         Parameters
         ----------
-            mouse_x: click position on the x-axis
-            mouse_y: click position on the y-axis
+            mouse_x : int
+                click position on the x-axis
+            mouse_y : int
+                click position on the y-axis
         """
         self._im.spikes.append((int(mouse_y), int(mouse_x)))
 
@@ -357,9 +366,12 @@ class SimulationApp(QQmlApplicationEngine):
 
         Parameters
         ----------
-            mouse_x: click position on the x-axis
-            mouse_y: click position on the y-axis
-            radius: size of the patch
+            mouse_x : int
+                click position on the x-axis
+            mouse_y : int
+                click position on the y-axis
+            radius : int
+                size of the patch
         """
         self._im.patches.append((int(mouse_y), int(mouse_x), int(radius)))
 

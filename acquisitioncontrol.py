@@ -195,6 +195,7 @@ class Window(QWidget):
     """A class which contains a simple debug GUI."""
 
     def __init__(self):
+        """Initialize the Window class."""
         QWidget.__init__(self)
         self.button_start = QPushButton("Start", self)
         self.button_cancel = QPushButton("Cancel", self)
