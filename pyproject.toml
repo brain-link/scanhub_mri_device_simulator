@@ -80,7 +80,7 @@ lint.ignore_fail = "return_non_zero"
 
     [tool.poe.tasks.pylint]
     help = "Run pylint"
-    cmd  = "pylint"
+    cmd  = "pylint ."
 
     [tool.poe.tasks.mypy]
     help = "Run mypy"
