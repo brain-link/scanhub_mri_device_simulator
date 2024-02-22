@@ -25,18 +25,18 @@ class RequestHandler(BaseHTTPRequestHandler):
         """Handle the POST requests."""
         if self.path == "/api/start-scan":
             content_length = int(self.headers["Content-Length"])
-            post_data = self.rfile.read(content_length)
+            post_data = self.rfile.read(content_length).decode("utf8")
             payload = json.loads(post_data)
 
             # Access the payload data
             record_id = payload["record_id"]
-            sequence = payload["sequence"]
+            sequence = payload["parametrized_sequence"]["sequence"]
 
             acquisition_event = AcquisitionEvent(
                 device_id="Simulator",
                 record_id=record_id,
                 command_id=AcquisitionCommand.start,
-                input_sequence=sequence,
+                input_sequence=json.dumps(sequence),
             )
 
             # Call the start-scan method of the AcquisitionControl instance

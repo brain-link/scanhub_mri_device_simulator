@@ -4,7 +4,6 @@
 """Contains the definition of the ImageManipulators class."""
 
 import numpy as np
-from numpy.typing import _ShapeLike  # type: ignore
 from typing import Any
 
 # Attempting to use mkl_fft (faster FFT library for Intel CPUs). Fallback is np
@@ -181,7 +180,7 @@ class ImageManipulators:
         self.image_display_data[:] = np.require(self.img, np.uint8)
         self.kspace_display_data[:] = np.require(self.kspace_abs, np.uint8)
 
-    def resize_arrays(self, size: _ShapeLike):
+    def resize_arrays(self, size):
         """Resize arrays for image size changes (e.g. remove kspace lines etc.).
 
         Called by undersampling kspace and the image_change method. If the FOV
